@@ -1,4 +1,4 @@
-from utils import int16_to_hex, extract_float
+from .utils import int16_to_hex, extract_float
 
 class Trame:
     def __init__(self, dest, source, f, param, value_hex):
