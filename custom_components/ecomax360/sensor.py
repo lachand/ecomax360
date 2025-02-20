@@ -25,6 +25,18 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 class EcomaxSensor(Entity):
     previous_value = {}
+
+    ICONS = {
+        "TEMPERATURE": "mdi:thermometer",
+        "JOUR": "mdi:weather-sunny",
+        "NUIT": "mdi:weather-night",
+        "ACTUELLE": "mdi:thermometer-check",
+        "SOURCE_PRINCIPALE": "mdi:fire",
+        "DEPART_RADIATEUR": "mdi:radiator",
+        "ECS": "mdi:water-boiler",
+        "BALLON_TAMPON": "mdi:water",
+        "TEMPERATURE_EXTERIEUR": "mdi:weather-partly-cloudy"
+    }
     
     def __init__(self, name, param, comm):
         self._name = name
@@ -39,6 +51,11 @@ class EcomaxSensor(Entity):
     @property
     def state(self):
         return self._state
+
+    @property
+    def icon(self):
+        """Retourne une icône spécifique en fonction du capteur."""
+        return self.ICONS.get(self._param, "mdi:help-circle")  # Icône par défaut si non trouvé
 
     async def async_update(self):
         data = self._comm.listenFrame("GET_THERMOSTAT") or {}
