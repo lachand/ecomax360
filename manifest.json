@@ -1,9 +1,10 @@
 {
   "domain": "ecomax360",
   "name": "EcoMax360 Controller",
-  "version": "0.1",
+  "version": "0.2",
   "requirements": [],
   "codeowners": ["@lachand"],
   "dependencies": [],
-  "iot_class": "local_polling"
+  "iot_class": "local_polling",
+  "logo": "custom_components/ecomax360/icon.png"
 }
