@@ -11,11 +11,11 @@ _LOGGER.info("Démarrage de la configuration des capteurs EcoMax360")
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     comm = Communication()
-    thermostat_data = comm.listenFrame("GET_THERMOSTAT") or {}
+    #thermostat_data = comm.listenFrame("GET_THERMOSTAT") or {}
     ecomax_data = comm.listenFrame("GET_DATAS") or {}
 
     sensors = [EcomaxSensor(name, key, comm) for key, name in {
-        **{key: f"Thermostat {key}" for key in THERMOSTAT.keys()},
+        #**{key: f"Thermostat {key}" for key in THERMOSTAT.keys()},
         **{key: f"EcoMax {key}" for key in ECOMAX.keys()}
     }.items()]
 
@@ -58,7 +58,7 @@ class EcomaxSensor(Entity):
         return self.ICONS.get(self._param, "mdi:help-circle")  # Icône par défaut si non trouvé
 
     async def async_update(self):
-        data = self._comm.listenFrame("GET_THERMOSTAT") or {}
+        #data = self._comm.listenFrame("GET_THERMOSTAT") or {}
         data.update(self._comm.listenFrame("GET_DATAS") or {})
         new_value = data.get(self._param)
                              
