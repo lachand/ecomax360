@@ -2,6 +2,8 @@ import socket
 from .parameters import HOST, PORT, PARAMETER
 from .utils import extract_data
 import re
+import logging
+_LOGGER = logging.getLogger(__name__)
 
 class Communication:
     def __init__(self):
@@ -19,6 +21,7 @@ class Communication:
 
     def listenFrame(self, param):
         """Écoute une trame et retourne les valeurs pour chaque capteur."""
+        _LOGGER.info(f"Requête envoyée : {param}")
         if param not in PARAMETER:
             return None
 
