@@ -60,7 +60,7 @@ class EcomaxSensor(Entity):
     async def async_update(self):
         data = self._comm.listenFrame("GET_THERMOSTAT") or {}
         data.update(self._comm.listenFrame("GET_DATAS") or {})
-        new_value = data.get(self._param
+        new_value = data.get(self._param)
                              
         if new_value is not None:
             self._state = new_value
