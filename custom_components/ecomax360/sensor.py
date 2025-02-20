@@ -24,6 +24,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(sensors, True)
 
 class EcomaxSensor(Entity):
+    previous_value = {}
+    
     def __init__(self, name, param, comm):
         self._name = name
         self._param = param
@@ -41,5 +43,11 @@ class EcomaxSensor(Entity):
     async def async_update(self):
         data = self._comm.listenFrame("GET_THERMOSTAT") or {}
         data.update(self._comm.listenFrame("GET_DATAS") or {})
-        self._state = data.get(self._param, "Inconnu")
+        new_value = data.get(self._param
+                             
+        if new_value is not None:
+            self._state = new_value
+            EcomaxSensor.previous_values[self._param] = new_value
+        else:
+            self._state = EcomaxSensor.previous_values.get(self._param, "Inconnu")
         _LOGGER.info(f"Capteur {self._name} mis à jour : {self._state}")
