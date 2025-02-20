@@ -1,6 +1,13 @@
 from homeassistant.helpers.entity import Entity
 from .communication import Communication
 from .parameters import THERMOSTAT, ECOMAX
+import logging
+_LOGGER = logging.getLogger(__name__)
+
+_LOGGER.info("Chargement du fichier sensor.py d'EcoMax360")
+
+
+_LOGGER.info("Démarrage de la configuration des capteurs EcoMax360")
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     comm = Communication()
@@ -12,8 +19,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         **{key: f"EcoMax {key}" for key in ECOMAX.keys()}
     }.items()]
 
-    if not sensors:
-        _LOGGER.warning("Aucun capteur EcoMax360 n'a été créé.")
+    _LOGGER.info(f"Nombre de capteurs détectés : {len(sensors)}")
 
     async_add_entities(sensors, True)
 
