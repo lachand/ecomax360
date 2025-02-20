@@ -1,5 +1,5 @@
 import struct
-from parameters import PARAMETER
+from .parameters import PARAMETER
 
 def float_to_hex(value):
     """Convertit un float en hexadécimal (Little Endian)."""
