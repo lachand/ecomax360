@@ -6,12 +6,15 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     comm = Communication()
     thermostat_data = comm.listenFrame("GET_THERMOSTAT") or {}
     ecomax_data = comm.listenFrame("GET_DATAS") or {}
-    
+
     sensors = [EcomaxSensor(name, key, comm) for key, name in {
         **{key: f"Thermostat {key}" for key in THERMOSTAT.keys()},
         **{key: f"EcoMax {key}" for key in ECOMAX.keys()}
     }.items()]
-    
+
+    if not sensors:
+        _LOGGER.warning("Aucun capteur EcoMax360 n'a été créé.")
+
     async_add_entities(sensors, True)
 
 class EcomaxSensor(Entity):
@@ -32,4 +35,5 @@ class EcomaxSensor(Entity):
     async def async_update(self):
         data = self._comm.listenFrame("GET_THERMOSTAT") or {}
         data.update(self._comm.listenFrame("GET_DATAS") or {})
-        self._state = data.get(self._param)
+        self._state = data.get(self._param, "Inconnu")
+        _LOGGER.info(f"Capteur {self._name} mis à jour : {self._state}")
