@@ -24,7 +24,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(sensors, True)
 
 class EcomaxSensor(Entity):
-    previous_value = {}
+    previous_values = {}
 
     ICONS = {
         "TEMPERATURE": "mdi:thermometer",
