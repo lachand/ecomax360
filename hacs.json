@@ -5,5 +5,7 @@
   "country": "FR",
   "render_readme": true,
   "filename": "custom_components/ecomax360/",
-  "categories": ["integration"]
+  "categories": ["integration"],
+  "render_readme": true,
+  "zip_release": false
 }
