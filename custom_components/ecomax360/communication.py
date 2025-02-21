@@ -26,11 +26,10 @@ class Communication:
             return None
 
         self.connect()
-        while True: #Ajout de la boucle car données envoyées sans demande
-            frames = self.socket.recv(1024).hex()
-            responses = re.findall(r'68.*?16', frames)
+        frames = self.socket.recv(1024).hex()
+        responses = re.findall(r'68.*?16', frames)
 
-            for response in responses:
-                if PARAMETER[param]["dataToSearch"] in response:
-                    return extract_data(response, PARAMETER[param]["dataStruct"])
+        for response in responses:
+            if PARAMETER[param]["dataToSearch"] in response:
+                return extract_data(response, PARAMETER[param]["dataStruct"])
         return None
