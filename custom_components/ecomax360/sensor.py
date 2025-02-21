@@ -2,6 +2,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import STATE_UNKNOWN
 from .communication import Communication
 from .parameters import THERMOSTAT, ECOMAX
+from .trame import Trame
 import logging
 _LOGGER = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     comm = Communication()
     trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
-    thermostat_data = self._communication.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
+    thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
     ecomax_data = comm.listenFrame("GET_DATAS") or {}
 
     sensors = [EcomaxSensor(name, key, comm) for key, name in {
@@ -76,7 +77,7 @@ class EcomaxSensor(SensorEntity):
 
     async def async_update(self):
         trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
-        data = self._communication.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
+        data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
         data.update(self._comm.listenFrame("GET_DATAS") or {})
         new_value = data.get(self._param)
                              
