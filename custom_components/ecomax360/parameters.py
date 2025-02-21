@@ -10,6 +10,8 @@ THERMOSTAT = {
     "ACTUELLE": {"index": 36, "type": float}
 }
 
+SET_CODE = "55 53 45 52 2d 30 30 30 00 34 30 39 35 00"
+
 ECOMAX = {
     "SOURCE_PRINCIPALE": {"index": 164, "type": float},
     "DEPART_RADIATEUR": {"index": 169, "type": float},
