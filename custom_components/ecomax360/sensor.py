@@ -18,12 +18,12 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     comm.connect()
     trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
     thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
-    ecomax_data = comm.listenFrame("GET_DATAS") or {}
+    #ecomax_data = comm.listenFrame("GET_DATAS") or {}
     comm.close()
 
     sensors = [EcomaxSensor(name, key, comm) for key, name in {
-        **{key: f"Thermostat {key}" for key in THERMOSTAT.keys()},
-        **{key: f"EcoMax {key}" for key in ECOMAX.keys()}
+        **{key: f"Thermostat {key}" for key in THERMOSTAT.keys()}#,
+        #    **{key: f"EcoMax {key}" for key in ECOMAX.keys()}
     }.items()]
 
     message = f"Nombre de capteurs détectés : {len(sensors)}"
@@ -82,7 +82,8 @@ class EcomaxSensor(SensorEntity):
         comm = Communication()
         comm.connect()
         data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
-        data.update(self._comm.listenFrame("GET_DATAS") or {})
+        data.update(comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {})
+        #data.update(self._comm.listenFrame("GET_DATAS") or {})
         comm.close()
         new_value = data.get(self._param)
                              
