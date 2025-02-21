@@ -1,5 +1,5 @@
-from utils import int16_to_hex, extract_float
-from parameters import SET_CODE
+from .utils import int16_to_hex, extract_float
+from .parameters import SET_CODE
 
 class Trame:
     def __init__(self, dest, source, f, ack_f, param, value_hex):
