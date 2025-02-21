@@ -1,5 +1,5 @@
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate.const import SUPPORT_TARGET_TEMPERATURE
+from homeassistant.components.climate.const import ClimateEntityFeature
 from homeassistant.const import TEMP_CELSIUS
 from .communication import Communication
 from .utils import validate_value
@@ -43,7 +43,7 @@ class EcomaxClimate(ClimateEntity):
     
     @property
     def supported_features(self):
-        return SUPPORT_TARGET_TEMPERATURE
+        return ClimateEntityFeature.TARGET_TEMPERATURE
     
     @property
     def current_temperature(self):
