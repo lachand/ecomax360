@@ -27,8 +27,8 @@ def extract_data(data, dataStruct):
     for key in dataStruct:
         if dataStruct[key]["type"] == int :
             values[key] = data_bytes[dataStruct[key]["index"]]
-            if key == "MODE" :
-                values[key] = dataStruct[key]["values"][data_bytes[dataStruct[key]["index"]]]
+            #if key == "MODE" :
+            #    values[key] = dataStruct[key]["values"][data_bytes[dataStruct[key]["index"]]]
         else:
             values[key] = struct.unpack("f", data_bytes[dataStruct[key]["index"]:dataStruct[key]["index"] + 4])[0]
 
