@@ -6,5 +6,6 @@
   "codeowners": ["@lachand"],
   "dependencies": [],
   "iot_class": "local_polling",
+  "resources": ["custom_components/ecomax360/icon.png"]
   "logo": "custom_components/ecomax360/icon.png"
 }
