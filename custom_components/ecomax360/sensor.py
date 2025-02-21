@@ -4,10 +4,12 @@ from .parameters import THERMOSTAT, ECOMAX
 import logging
 _LOGGER = logging.getLogger(__name__)
 
-_LOGGER.info("Chargement du fichier sensor.py d'EcoMax360")
+message = fChargement du fichier sensor.py d'EcoMax360")
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
-_LOGGER.info("Démarrage de la configuration des capteurs EcoMax360")
+message = f"Démarrage de la configuration des capteurs EcoMax360")
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     comm = Communication()
@@ -19,7 +21,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         **{key: f"EcoMax {key}" for key in ECOMAX.keys()}
     }.items()]
 
-    _LOGGER.info(f"Nombre de capteurs détectés : {len(sensors)}")
+    message = f"Nombre de capteurs détectés : {len(sensors)}"
+    logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     async_add_entities(sensors, True)
 
@@ -68,4 +71,5 @@ class EcomaxSensor(Entity):
             EcomaxSensor.previous_values[self._param] = new_value
         else:
             self._state = EcomaxSensor.previous_values.get(self._param, "Inconnu")
-        _LOGGER.info(f"Capteur {self._name} mis à jour : {self._state}")
+        message = f"Capteur {self._name} mis à jour : {self._state}")
+        logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
