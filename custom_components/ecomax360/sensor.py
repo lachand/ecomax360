@@ -1,6 +1,5 @@
 from homeassistant.helpers.sensor import SensorEntity
 from homeassistant.const import STATE_UNKNOWN
-from homeassistant.helpers.sensorEntity import Entity
 from .communication import Communication
 from .parameters import THERMOSTAT, ECOMAX
 import logging
