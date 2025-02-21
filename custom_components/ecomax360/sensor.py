@@ -14,7 +14,8 @@ logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     comm = Communication()
-    thermostat_data = comm.listenFrame("GET_THERMOSTAT") or {}
+    trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
+    thermostat_data = self._communication.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
     ecomax_data = comm.listenFrame("GET_DATAS") or {}
 
     sensors = [EcomaxSensor(name, key, comm) for key, name in {
@@ -74,8 +75,8 @@ class EcomaxSensor(SensorEntity):
         return self.ICONS.get(self._param, "mdi:help-circle")  # Icône par défaut si non trouvé
 
     async def async_update(self):
-        #data = self._comm.listenFrame("GET_THERMOSTAT") or {}
-        data = self._comm.listenFrame("GET_DATAS") or {}
+        trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
+        data = self._communication.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
         data.update(self._comm.listenFrame("GET_DATAS") or {})
         new_value = data.get(self._param)
                              
