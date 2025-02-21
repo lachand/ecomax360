@@ -1,13 +1,18 @@
-from .utils import int16_to_hex, extract_float
+from utils import int16_to_hex, extract_float
+from parameters import SET_CODE
 
 class Trame:
-    def __init__(self, dest, source, f, param, value_hex):
+    def __init__(self, dest, source, f, ack_f, param, value_hex):
         self.da0 = dest[:2]
         self.da1 = dest[2:]
         self.sa0 = source[:2]
         self.sa1 = source[2:]
         self.f = f
-        self.data = f"55 53 45 52 2d 30 30 30 00 34 30 39 35 00 {param} {value_hex}"
+        self.ack_f = ack_f
+        if f == "29" :
+            self.data = f"{SET_CODE} {param} {value_hex}"
+        else :
+            self.data = f"{param}"
 
         self.l0, self.l1 = self.calculate_length()
 
