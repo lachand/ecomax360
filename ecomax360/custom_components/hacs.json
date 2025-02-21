@@ -1,9 +1,0 @@
-{
-  "name": "EcoMax360",
-  "domain": "ecomax360",
-  "homeassistant": "2021.12.0",
-  "country": "FR",
-  "render_readme": true,
-  "filename": "custom_components/ecomax360/",
-  "categories": ["integration"]
-}
