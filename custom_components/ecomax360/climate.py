@@ -2,6 +2,8 @@ from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import SUPPORT_TARGET_TEMPERATURE
 from homeassistant.const import TEMP_CELSIUS
 from .communication import Communication
+from .utils import validate_value
+import from .trame import Trame
 
 THERMOSTAT = {
     "MODE": {"index" : 29, "type" : int, "values": {
