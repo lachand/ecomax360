@@ -21,7 +21,8 @@ class Communication:
 
     def listenFrame(self, param):
         """Écoute une trame et retourne les valeurs pour chaque capteur."""
-        _LOGGER.info(f"Requête envoyée : {param}")
+        message = f"Requête envoyée : {param}"
+        logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         if param not in PARAMETER:
             return None
 
