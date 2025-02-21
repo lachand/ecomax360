@@ -1,6 +1,6 @@
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import ClimateEntityFeature
-from homeassistant.const import TEMP_CELSIUS
+from homeassistant.const import UnitOfTemperature
 from .communication import Communication
 from .utils import validate_value
 from .trame import Trame
@@ -39,7 +39,7 @@ class EcomaxClimate(ClimateEntity):
     
     @property
     def temperature_unit(self):
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
     
     @property
     def supported_features(self):
