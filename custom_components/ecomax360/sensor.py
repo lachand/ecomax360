@@ -1,3 +1,5 @@
+from homeassistant.helpers.sensor import SensorEntity
+from homeassistant.const import STATE_UNKNOWN
 from homeassistant.helpers.entity import Entity
 from .communication import Communication
 from .parameters import THERMOSTAT, ECOMAX
@@ -26,7 +28,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     async_add_entities(sensors, True)
 
-class EcomaxSensor(Entity):
+class EcomaxSensor(SensorEntity):
     previous_values = {}
 
     ICONS = {
@@ -40,12 +42,24 @@ class EcomaxSensor(Entity):
         "BALLON_TAMPON": "mdi:water",
         "TEMPERATURE_EXTERIEUR": "mdi:weather-partly-cloudy"
     }
+
+    UNIT_MAPPING = {
+        "TEMPERATURE": "°C",
+        "ACTUELLE": "°C",
+        "DEPART_RADIATEUR": "°C",
+        "ECS": "°C",
+        "BALLON_TAMPON": "°C",
+        "TEMPERATURE_EXTERIEUR": "°C"
+    }
     
     def __init__(self, name, param, comm):
         self._name = name
         self._param = param
         self._state = None
         self._comm = comm
+        self._attr_native_unit_of_measurement = self.UNIT_MAPPING.get(param)
+        self._attr_device_class = "temperature" if self._attr_native_unit_of_measurement == "°C" else None
+        self._attr_state_class = "measurement" if self._attr_native_unit_of_measurement else None
 
     @property
     def name(self):
@@ -67,9 +81,12 @@ class EcomaxSensor(Entity):
         new_value = data.get(self._param)
                              
         if new_value is not None:
-            self._state = new_value
-            EcomaxSensor.previous_values[self._param] = new_value
+            try:
+                self._state = round(float(new_value), 2)
+                EcomaxSensor.previous_values[self._param] = self._state
+            except ValueError:
+                self._state = STATE_UNKNOWN
         else:
-            self._state = EcomaxSensor.previous_values.get(self._param, "Inconnu")
+            self._state = EcomaxSensor.previous_values.get(self._param, STATE_UNKNOWN)
         message = f"Capteur {self._name} mis à jour : {self._state}"
         logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
