@@ -2,7 +2,6 @@ from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import ClimateEntityFeature
 from homeassistant.const import UnitOfTemperature
 from .communication import Communication
-from .utils import validate_value
 from .trame import Trame
 
 THERMOSTAT = {
@@ -73,8 +72,7 @@ class EcomaxClimate(ClimateEntity):
             new_temp = kwargs["temperature"]
             try:
                 self._communication.connect()
-                value_hex = validate_value(param_key, value)
-                trame = Trame("64 00","20 00","29","a9","01 20 01", value_hex).build()
+                trame = Trame("64 00","20 00","29","a9","01 20 01", struct.pack('<f', new_temp).hex()).build()
                 self._communication.send(trame)
                 self._target_temperature = new_temp
             except Exception as e:
