@@ -19,6 +19,60 @@ class Communication:
             self.socket.close()
             self.socket = None
 
+    def request(self, trame, datastruct, dataToSearch, ack_f):
+        """
+                Envoie une trame et attend un ACK en réponse.
+                Si aucun ACK n'est reçu, la trame est renvoyée toutes les secondes.
+                """
+        ack_received = False
+        da_sent = trame[4:8]  # DA envoyé
+        sa_sent = trame[8:12]  # SA envoyé
+
+        while not ack_received:
+            self.socket.sendall(trame)
+
+            frames = self.socket.recv(1024).hex()
+            responses = re.findall(r'68.*?16', frames)
+
+            for response in responses:
+                if len(response) >= 14:  # Vérification d'une taille minimale
+                    # da_received = response[8:12]  # DA reçu
+                    # sa_received = response[4:8]  # SA reçu
+                    function = response[14:16]  # Code fonction
+
+                    # Vérification du SA et DA dans la réponse
+                    if function == ack_f and len(response) == 116:  # On vérifie que la réponse correspond bien à l'ack. and da_received == sa_sent and sa_received == da_sent:
+                        ack_received = True
+                        if dataToSearch in response:  # and len(response) == 116:
+                            datas = extract_data(response, datastruct)
+                            return datas
+                else:
+                    time.sleep(1)
+
+    def send(self, trame):
+        """
+        Envoie une trame et attend un ACK en réponse.
+        Si aucun ACK n'est reçu, la trame est renvoyée toutes les secondes.
+        """
+        ack_received = False
+        da_sent = trame[4:8]  # DA envoyé
+        sa_sent = trame[8:12]  # SA envoyé
+
+        while not ack_received:
+            self.socket.sendall(trame)
+
+            if response:
+                if len(response) >= 14:  # Vérification d'une taille minimale
+                    #da_received = response[8:12]  # DA reçu
+                    #sa_received = response[4:8]  # SA reçu
+                    function = response[12:14]  # Code fonction
+
+                    # Vérification du SA et DA dans la réponse
+                    if function == trame.ack_f: # On vérifie que la réponse correspond bien à l'ack. and da_received == sa_sent and sa_received == da_sent:
+                        ack_received = True
+                else:
+                    time.sleep(1)
+
     def listenFrame(self, param):
         """Écoute une trame et retourne les valeurs pour chaque capteur."""
         message = f"Requête envoyée : {param}"
