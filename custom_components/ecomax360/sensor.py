@@ -33,7 +33,7 @@ class EcomaxSensor(Entity):
         "ACTUELLE": "mdi:thermometer-check",
         "SOURCE_PRINCIPALE": "mdi:fire",
         "DEPART_RADIATEUR": "mdi:radiator",
-        "ECS": "mdi:water-boiler",
+        "ECS": "mdi:water-pump",
         "BALLON_TAMPON": "mdi:water",
         "TEMPERATURE_EXTERIEUR": "mdi:weather-partly-cloudy"
     }
@@ -58,7 +58,8 @@ class EcomaxSensor(Entity):
         return self.ICONS.get(self._param, "mdi:help-circle")  # Icône par défaut si non trouvé
 
     async def async_update(self):
-        data = self._comm.listenFrame("GET_THERMOSTAT") or {}
+        #data = self._comm.listenFrame("GET_THERMOSTAT") or {}
+        data = self._comm.listenFrame("GET_DATAS") or {}
         data.update(self._comm.listenFrame("GET_DATAS") or {})
         new_value = data.get(self._param)
                              
