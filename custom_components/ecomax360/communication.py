@@ -70,7 +70,7 @@ class Communication:
             self.socket.sendall(trame)
             response = self.receive()
 
-            logger.info(response)
+            _LOGGER.info(response)
 
             if response:
                 if len(response) >= 14:  # Vérification d'une taille minimale
