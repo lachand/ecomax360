@@ -87,7 +87,6 @@ class CustomModeThermostat(ClimateEntity):
         trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
         thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
         comm.close()
-        self._current_temperature = thermostat_data["ACTUELLE"]
-        self._target_temperature = thermostat_data["TEMPERATURE"]
-        self._hvac_mode = THERMOSTAT["MODE"]["values"][thermostat_data["MODE"]]
+        self._target_temperature = thermostat_data["ACTUELLE"]
+        self._current_temperature = thermostat_data["TEMPERATURE"]
         pass
