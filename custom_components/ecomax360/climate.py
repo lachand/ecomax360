@@ -70,6 +70,14 @@ class CustomModeThermostat(ClimateEntity):
         if temperature is None:
             return
         self._target_temperature = temperature
+
+        trame = Trame("0100","6400é,"a9","29","012001", struct.pack('<f', temperature)).build()
+
+        comm = Communication()
+        comm.connect()
+        comm.send(trame)
+        comm.close()
+        
         self.schedule_update_ha_state()
 
     def set_hvac_mode(self, hvac_mode):
