@@ -1,79 +1,89 @@
-from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate.const import ClimateEntityFeature
-from homeassistant.const import UnitOfTemperature
-from .communication import Communication
-from .trame import Trame
+"""Intégration minimaliste d'un thermostat pour Home Assistant avec gestion de modes personnalisés."""
 
-THERMOSTAT = {
-    "MODE": {"index" : 29, "type" : int, "values": {
-        0 : "Auto Jour",
-        1 : "Nuit",
-        2 : "Jour",
-        3 : "Exterieur",
-        4 : "Aération",
-        5 : "Fête",
-        6 : "Vacances",
-        7 : "Hors-gel"
-    }},
-    "AUTO": {"index" : 14, "type" : int},
-    "TEMPERATURE": {"index" : 31, "type" : float},
-    "JOUR": {"index" : 41, "type" : float},
-    "NUIT": {"index" : 46, "type" : float},
-    "HORS_GEL": {"index" : 51, "type" : float},
-    "ACTUELLE": {"index" : 36, "type" : float},
-}
+import logging
+import voluptuous as vol
 
-class EcomaxClimate(ClimateEntity):
-    """Contrôle du chauffage via EcoMax360."""
-    
+import homeassistant.helpers.config_validation as cv
+from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
+from homeassistant.const import TEMP_CELSIUS, ATTR_TEMPERATURE
+
+_LOGGER = logging.getLogger(__name__)
+
+# Aucun paramètre de configuration spécifique dans cet exemple.
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({})
+
+def setup_platform(hass, config, add_entities, discovery_info=None):
+    """Initialise la plateforme thermostat."""
+    add_entities([CustomModeThermostat()])
+
+class CustomModeThermostat(ClimateEntity):
+    """Représentation d'un thermostat avec gestion de modes personnalisés."""
+
     def __init__(self):
-        self._name = "Chauffage EcoMax360"
-        self._temperature = None
-        self._target_temperature = None
-        self._communication = Communication()
-    
+        """Initialise le thermostat."""
+        self._name = "Thermostat personnalisé"
+        self._current_temperature = 20.0
+        self._target_temperature = 22.0
+        self._hvac_mode = "auto"  # Mode par défaut
+
     @property
     def name(self):
+        """Renvoie le nom du thermostat."""
         return self._name
-    
+
     @property
     def temperature_unit(self):
-        return UnitOfTemperature.CELSIUS
-    
-    @property
-    def supported_features(self):
-        return ClimateEntityFeature.TARGET_TEMPERATURE
-    
+        """Renvoie l'unité de température utilisée."""
+        return TEMP_CELSIUS
+
     @property
     def current_temperature(self):
-        return self._temperature
-    
+        """Renvoie la température actuelle."""
+        return self._current_temperature
+
     @property
     def target_temperature(self):
+        """Renvoie la température cible."""
         return self._target_temperature
-    
-    def update(self):
-        """Met à jour les valeurs du thermostat."""
-        try:
-            self._communication.connect()
-            trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
-            datas_t = self._communication.request(trame,THERMOSTAT, "265535445525f78343","c0")
-            self._communication.close()
-            self._temperature = data_t['TEMPERATURE']
-            self._target_temperature = data_t['ACTUELLE']
-        except Exception as e:
-            self._temperature = None
-            self._target_temperature = None
-            print(f"Erreur lors de la récupération des données : {e}")
-    
+
+    @property
+    def hvac_mode(self):
+        """Renvoie le mode de fonctionnement actuel."""
+        return self._hvac_mode
+
+    @property
+    def hvac_modes(self):
+        """Renvoie la liste des modes supportés par le thermostat."""
+        return ["auto", "jour", "nuit", "hors gel", "aération", "party", "vacances"]
+
+    @property
+    def supported_features(self):
+        """Renvoie les fonctionnalités supportées par ce thermostat."""
+        from homeassistant.components.climate import (
+            SUPPORT_TARGET_TEMPERATURE,
+            SUPPORT_FAN_MODE,
+        )
+        # Ici, nous utilisons uniquement le réglage de la température cible et le changement de mode.
+        return SUPPORT_TARGET_TEMPERATURE
+
     def set_temperature(self, **kwargs):
-        """Modifie la température cible du thermostat."""
-        if "temperature" in kwargs:
-            new_temp = kwargs["temperature"]
-            try:
-                self._communication.connect()
-                trame = Trame("64 00","20 00","29","a9","01 20 01", struct.pack('<f', new_temp).hex()).build()
-                self._communication.send(trame)
-                self._target_temperature = new_temp
-            except Exception as e:
-                print(f"Erreur lors de la modification de la température : {e}")
+        """Définit la nouvelle température cible."""
+        temperature = kwargs.get(ATTR_TEMPERATURE)
+        if temperature is None:
+            return
+        self._target_temperature = temperature
+        self.schedule_update_ha_state()
+
+    def set_hvac_mode(self, hvac_mode):
+        """Change le mode de fonctionnement du thermostat."""
+        if hvac_mode not in self.hvac_modes:
+            _LOGGER.error("Mode %s non supporté", hvac_mode)
+            return
+        self._hvac_mode = hvac_mode
+        self.schedule_update_ha_state()
+
+    def update(self):
+        """Méthode de mise à jour (à personnaliser pour récupérer les données réelles)."""
+        # Exemple : mise à jour de la température actuelle à partir d'une source externe
+        # self._current_temperature = get_actual_temperature()
+        pass
