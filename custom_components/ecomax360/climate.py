@@ -57,7 +57,7 @@ class CustomModeThermostat(ClimateEntity):
     @property
     def hvac_modes(self):
         """Renvoie la liste des modes supportés par le thermostat."""
-        return ["auto", "jour", "nuit", "hors gel", "aération", "party", "vacances"]
+        return ["Auto Jour","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
 
     @property
     def supported_features(self):
@@ -89,4 +89,5 @@ class CustomModeThermostat(ClimateEntity):
         comm.close()
         self._current_temperature = thermostat_data["ACTUELLE"]
         self._target_temperature = thermostat_data["TEMPERATURE"]
+        self._hvac_mode = THERMOSTAT["MODE"]["values"][thermostat_data["MODE"]]
         pass
