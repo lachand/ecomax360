@@ -37,6 +37,7 @@ class CustomModeThermostat(ClimateEntity):
         self._target_temperature = thermostat_data["ACTUELLE"]
         self._current_temperature = thermostat_data["TEMPERATURE"]
         self._preset_mode = thermostat_data['MODE']
+        self.auto = thermostat_data['MODE']
         self._hvac_mode = "auto"  # Mode par défaut
 
     @property
@@ -79,7 +80,7 @@ class CustomModeThermostat(ClimateEntity):
         Liste des presets personnalisés.
         Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
         """
-        return ["Auto Jour","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
+        return ["Auto","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
 
     @property
     def preset_mode(self):
@@ -116,8 +117,15 @@ class CustomModeThermostat(ClimateEntity):
         if temperature is None:
             return
         self._target_temperature = temperature
+        
+        if self._preset_mode in ["Jour"] or self._preset_mode == "Auto" and self.auto == 1 :
+            code = "012001"
+        elif self._preset_mode in ["Nuit", "Exterieur"] or self._preset_mode == "Auto" and self.auto == 0 :
+            code = "012101"
+        else :
+            code = "012001"
 
-        trame = Trame("6400","0100","29","a9","012001", struct.pack('<f', temperature).hex()).build()
+        trame = Trame("6400","0100","29","a9",code, struct.pack('<f', temperature).hex()).build()
 
         comm = Communication()
         comm.connect()
