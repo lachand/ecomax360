@@ -37,7 +37,7 @@ class CustomModeThermostat(ClimateEntity):
         self._target_temperature = thermostat_data["ACTUELLE"]
         self._current_temperature = thermostat_data["TEMPERATURE"]
         self._preset_mode = thermostat_data['MODE']
-        self.auto = thermostat_data['MODE']
+        self.auto = thermostat_data['AUTO']
         self._hvac_mode = "auto"  # Mode par défaut
 
     @property
@@ -152,4 +152,5 @@ class CustomModeThermostat(ClimateEntity):
         self._target_temperature = thermostat_data["ACTUELLE"]
         self._current_temperature = thermostat_data["TEMPERATURE"]
         self._preset_mode = thermostat_data['MODE']
+        self.auto = thermostat_data['AUTO']
         pass
