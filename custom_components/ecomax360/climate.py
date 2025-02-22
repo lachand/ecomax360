@@ -2,6 +2,7 @@
 
 import logging
 import voluptuous as vol
+import struct
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
