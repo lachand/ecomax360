@@ -57,7 +57,7 @@ class Communication:
             else:
                 tries = tries + 1
 
-    def send(self, trame):
+    def send(self, trame, ack_f):
         """
         Envoie une trame et attend un ACK en réponse.
         Si aucun ACK n'est reçu, la trame est renvoyée toutes les secondes.
@@ -77,7 +77,7 @@ class Communication:
                     function = response[12:14]  # Code fonction
 
                     # Vérification du SA et DA dans la réponse
-                    if function == trame.ack_f: # On vérifie que la réponse correspond bien à l'ack. and da_received == sa_sent and sa_received == da_sent:
+                    if function == ack_f: # On vérifie que la réponse correspond bien à l'ack. and da_received == sa_sent and sa_received == da_sent:
                         ack_received = True
 
     def listenFrame(self, param):
