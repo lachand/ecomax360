@@ -27,7 +27,7 @@ class CustomModeThermostat(ClimateEntity):
         self._name = "Thermostat personnalisé"
         self._current_temperature = 20.0
         self._target_temperature = 22.0
-        self._hvac_mode = "Auto Jour"  # Mode par défaut
+        self._hvac_mode = "auto"  # Mode par défaut
 
     @property
     def name(self):
