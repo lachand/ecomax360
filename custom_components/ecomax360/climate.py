@@ -7,6 +7,9 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.components.climate.const import ClimateEntityFeature
+from .communication import Communication
+from .parameters import THERMOSTAT, ECOMAX
+from .trame import Trame
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -79,5 +82,11 @@ class CustomModeThermostat(ClimateEntity):
 
     def update(self):
         """Méthode de mise à jour (à personnaliser pour récupérer des données réelles)."""
-        # Exemple : récupérer la température actuelle depuis une source externe
+        comm = Communication()
+        comm.connect()
+        trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
+        thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
+        comm.close()
+        self._current_temperature = thermostat_data["ACTUELLE"]
+        self._target_temperature = thermostat_data["TEMPERATURE"]
         pass
