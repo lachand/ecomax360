@@ -27,7 +27,7 @@ class CustomModeThermostat(ClimateEntity):
         self._name = "Thermostat personnalisé"
         self._current_temperature = 20.0
         self._target_temperature = 22.0
-        self._hvac_mode = "auto"  # Mode par défaut
+        self._hvac_mode = "Auto Jour"  # Mode par défaut
 
     @property
     def name(self):
@@ -57,7 +57,35 @@ class CustomModeThermostat(ClimateEntity):
     @property
     def hvac_modes(self):
         """Renvoie la liste des modes supportés par le thermostat."""
-        return ["Auto Jour","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
+        return [
+            HVACMode.OFF,
+            HVACMode.HEAT,
+            HVACMode.AUTO
+        ]
+
+    @property
+    def preset_modes(self):
+        """
+        Liste des presets personnalisés.
+        Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
+        """
+        return ["jour", "nuit", "hors_gel", "aération", "party", "vacances"]
+
+    @property
+    def preset_mode(self):
+        """Renvoie le preset actuel."""
+        return self._preset_mode
+
+    def set_preset_mode(self, preset_mode):
+        """
+        Définit le preset à appliquer.
+        Appelé via le service climate.set_preset_mode.
+        """
+        if preset_mode not in self.preset_modes:
+            _LOGGER.error("Preset %s non supporté", preset_mode)
+            return
+        self._preset_mode = preset_mode
+        self.schedule_update_ha_state()
 
     @property
     def supported_features(self):
