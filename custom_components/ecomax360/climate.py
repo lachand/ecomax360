@@ -6,6 +6,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
+from homeassistant.components.climate.const import ClimateEntityFeature
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,8 +59,7 @@ class CustomModeThermostat(ClimateEntity):
     @property
     def supported_features(self):
         """Renvoie les fonctionnalités supportées par ce thermostat."""
-        from homeassistant.components.climate import SUPPORT_TARGET_TEMPERATURE
-        return SUPPORT_TARGET_TEMPERATURE
+        return ClimateEntityFeature.TARGET_TEMPERATURE
 
     def set_temperature(self, **kwargs):
         """Définit la nouvelle température cible."""
