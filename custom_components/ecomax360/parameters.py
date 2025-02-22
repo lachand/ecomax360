@@ -2,7 +2,16 @@ HOST = "192.168.1.37"
 PORT = 8899
 
 THERMOSTAT = {
-    "MODE": {"index": 29, "type": int},
+    "MODE": {"index" : 29, "type" : int, "values": {
+        0 : "Auto Jour",
+        1 : "Nuit",
+        2 : "Jour",
+        3 : "Exterieur",
+        4 : "Aération",
+        5 : "Fête",
+        6 : "Vacances",
+        7 : "Hors-gel"
+    }},
     "AUTO": {"index": 14, "type": int},
     "TEMPERATURE": {"index": 31, "type": float},
     "JOUR": {"index": 41, "type": float},
