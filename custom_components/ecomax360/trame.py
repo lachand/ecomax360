@@ -1,5 +1,8 @@
 from .utils import int16_to_hex, extract_float
 from .parameters import SET_CODE
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 class Trame:
     def __init__(self, dest, source, f, ack_f, param, value_hex):
@@ -35,6 +38,8 @@ class Trame:
         size_DA = 2
         size_SA = 2
         size_F = 1
+        _LOGGER.info(self.data)
+        _LOGGER.info(bytes.fromhex(self.data))
         size_DATA = len(bytes.fromhex(self.data))
 
         total_size = size_DA + size_SA + size_F + size_DATA
