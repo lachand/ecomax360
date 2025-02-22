@@ -36,7 +36,7 @@ class CustomModeThermostat(ClimateEntity):
         comm.close()
         self._target_temperature = thermostat_data["ACTUELLE"]
         self._current_temperature = thermostat_data["TEMPERATURE"]
-        self._preset_mode = "jour"
+        self._preset_mode = thermostat_data['MODE']
         self._hvac_mode = "auto"  # Mode par défaut
 
     @property
@@ -79,7 +79,7 @@ class CustomModeThermostat(ClimateEntity):
         Liste des presets personnalisés.
         Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
         """
-        return ["jour", "nuit", "hors_gel", "aeration", "party", "vacances"]
+        return ["Auto Jour","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
 
     @property
     def preset_mode(self):
@@ -143,4 +143,5 @@ class CustomModeThermostat(ClimateEntity):
         comm.close()
         self._target_temperature = thermostat_data["ACTUELLE"]
         self._current_temperature = thermostat_data["TEMPERATURE"]
+        self._preset_mode = thermostat_data['MODE']
         pass
