@@ -69,8 +69,8 @@ class Communication:
         while not ack_received:
             self.socket.sendall(trame)
             response = self.receive()
-
-            _LOGGER.info(response)
+            
+            _LOGGER.info(trame)
 
             if response:
                 if len(response) >= 14:  # Vérification d'une taille minimale
