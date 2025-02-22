@@ -37,6 +37,7 @@ class CustomModeThermostat(ClimateEntity):
         self._target_temperature = thermostat_data["ACTUELLE"]
         self._current_temperature = thermostat_data["TEMPERATURE"]
         self._preset_mode = thermostat_data['MODE']
+        _LOGGER.error(thermostat_data)
         self.auto = thermostat_data['AUTO']
         self._hvac_mode = "auto"  # Mode par défaut
 
@@ -117,6 +118,9 @@ class CustomModeThermostat(ClimateEntity):
         if temperature is None:
             return
         self._target_temperature = temperature
+
+        _LOGGER.error(self._preset_mode)
+        _LOGGER.error(self.auto)
         
         if self._preset_mode in ["Jour"] or self._preset_mode == "Auto" and self.auto == 1 :
             code = "012001"
@@ -153,4 +157,5 @@ class CustomModeThermostat(ClimateEntity):
         self._current_temperature = thermostat_data["TEMPERATURE"]
         self._preset_mode = thermostat_data['MODE']
         self.auto = thermostat_data['AUTO']
+        _LOGGER.error(thermostat_data)
         pass
