@@ -112,7 +112,7 @@ class CustomModeThermostat(ClimateEntity):
 
         comm = Communication()
         comm.connect()
-        comm.send(trame)
+        comm.send(trame,"a9")
         comm.close()
         
         self.schedule_update_ha_state()
