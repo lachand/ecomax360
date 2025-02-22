@@ -5,11 +5,10 @@ import voluptuous as vol
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
-from homeassistant.const import TEMP_CELSIUS, ATTR_TEMPERATURE
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 
 _LOGGER = logging.getLogger(__name__)
 
-# Aucun paramètre de configuration spécifique dans cet exemple.
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({})
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -20,7 +19,7 @@ class CustomModeThermostat(ClimateEntity):
     """Représentation d'un thermostat avec gestion de modes personnalisés."""
 
     def __init__(self):
-        """Initialise le thermostat."""
+        """Initialise le thermostat avec des valeurs par défaut."""
         self._name = "Thermostat personnalisé"
         self._current_temperature = 20.0
         self._target_temperature = 22.0
@@ -34,7 +33,7 @@ class CustomModeThermostat(ClimateEntity):
     @property
     def temperature_unit(self):
         """Renvoie l'unité de température utilisée."""
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     @property
     def current_temperature(self):
@@ -59,11 +58,7 @@ class CustomModeThermostat(ClimateEntity):
     @property
     def supported_features(self):
         """Renvoie les fonctionnalités supportées par ce thermostat."""
-        from homeassistant.components.climate import (
-            SUPPORT_TARGET_TEMPERATURE,
-            SUPPORT_FAN_MODE,
-        )
-        # Ici, nous utilisons uniquement le réglage de la température cible et le changement de mode.
+        from homeassistant.components.climate import SUPPORT_TARGET_TEMPERATURE
         return SUPPORT_TARGET_TEMPERATURE
 
     def set_temperature(self, **kwargs):
@@ -83,7 +78,6 @@ class CustomModeThermostat(ClimateEntity):
         self.schedule_update_ha_state()
 
     def update(self):
-        """Méthode de mise à jour (à personnaliser pour récupérer les données réelles)."""
-        # Exemple : mise à jour de la température actuelle à partir d'une source externe
-        # self._current_temperature = get_actual_temperature()
+        """Méthode de mise à jour (à personnaliser pour récupérer des données réelles)."""
+        # Exemple : récupérer la température actuelle depuis une source externe
         pass
