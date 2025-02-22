@@ -122,9 +122,9 @@ class CustomModeThermostat(ClimateEntity):
         _LOGGER.error(self._preset_mode)
         _LOGGER.error(self.auto)
         
-        if self._preset_mode in ["Jour"] or self._preset_mode == "Auto" and self.auto == 1 :
+        if self._preset_mode == 1 or self._preset_mode == 0 and self.auto == 1 :
             code = "012001"
-        elif self._preset_mode in ["Nuit", "Exterieur"] or self._preset_mode == "Auto" and self.auto == 0 :
+        elif self._preset_mode == 2 or self._preset_mode == 0 and self.auto == 0 :
             code = "012101"
         else :
             code = "012001"
