@@ -108,7 +108,7 @@ class CustomModeThermostat(ClimateEntity):
             return
         self._target_temperature = temperature
 
-        trame = Trame("0100","6400","a9","29","012001", struct.pack('<f', temperature)).build()
+        trame = Trame("0100","6400","29","a9","55 53 45 52 2d 30 30 30 00 34 30 39 35 00 012001", struct.pack('<f', temperature)).build()
 
         comm = Communication()
         comm.connect()
