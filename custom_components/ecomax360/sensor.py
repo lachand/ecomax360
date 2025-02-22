@@ -22,8 +22,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     comm.close()
 
     sensors = [EcomaxSensor(name, key, comm) for key, name in {
-        **{key: f"Thermostat {key}" for key in THERMOSTAT.keys()}#,
-        #    **{key: f"EcoMax {key}" for key in ECOMAX.keys()}
+            **{key: f"EcoMax {key}" for key in ECOMAX.keys()}
     }.items()]
 
     message = f"Nombre de capteurs détectés : {len(sensors)}"
@@ -78,12 +77,10 @@ class EcomaxSensor(SensorEntity):
         return self.ICONS.get(self._param, "mdi:help-circle")  # Icône par défaut si non trouvé
 
     async def async_update(self):
-        trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
         comm = Communication()
         comm.connect()
-        data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
-        data.update(comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {})
-        #data.update(self._comm.listenFrame("GET_DATAS") or {})
+        data = self._comm.listenFrame("GET_DATAS") or {}
+        data.update(self._comm.listenFrame("GET_DATAS") or {})
         comm.close()
         new_value = data.get(self._param)
                              
