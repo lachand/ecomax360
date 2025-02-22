@@ -20,6 +20,10 @@ class Communication:
             self.socket.close()
             self.socket = None
 
+    def receive(self):
+        response = self.socket.recv(1024)
+        return response.hex()
+
     def request(self, trame, datastruct, dataToSearch, ack_f):
         """
                 Envoie une trame et attend un ACK en réponse.
