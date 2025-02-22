@@ -101,9 +101,14 @@ class CustomModeThermostat(ClimateEntity):
     def supported_features(self):
         """Renvoie les fonctionnalités supportées par ce thermostat."""
         return (
-        ClimateEntityFeature.PRESET
-        | ClimateEntityFeature.TARGET_TEMPERATURE
+        ClimateEntityFeature.PRESET_MODE
+        | ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TARGET_TEMPERATURE
     )
+    
+    @property
+    def target_temperature_step(self) -> float:
+        """Retourne le pas de modification de la température cible."""
+        return 0.1  # définit un pas de 0.5 degré
 
     def set_temperature(self, **kwargs):
         """Définit la nouvelle température cible."""
