@@ -3,6 +3,7 @@ from .parameters import HOST, PORT, PARAMETER
 from .utils import extract_data
 import re
 import logging
+import time
 _LOGGER = logging.getLogger(__name__)
 
 class Communication:
@@ -28,7 +29,10 @@ class Communication:
         da_sent = trame[4:8]  # DA envoyé
         sa_sent = trame[8:12]  # SA envoyé
 
-        while not ack_received:
+        max_tries = 10
+        tries = 0
+
+        while not ack_received and tries < max_tries:
             self.socket.sendall(trame)
 
             frames = self.socket.recv(1024).hex()
@@ -46,8 +50,9 @@ class Communication:
                         if dataToSearch in response:  # and len(response) == 116:
                             datas = extract_data(response, datastruct)
                             return datas
-                else:
-                    time.sleep(1)
+            else:
+                time.sleep(1)
+                tries = tries + 1
 
     def send(self, trame):
         """
