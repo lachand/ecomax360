@@ -6,7 +6,10 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
-from homeassistant.components.climate.const import ClimateEntityFeature
+from homeassistant.components.climate.const import (
+    ClimateEntityFeature,
+    HVACMode
+)
 from .communication import Communication
 from .parameters import THERMOSTAT, ECOMAX
 from .trame import Trame
