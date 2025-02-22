@@ -25,8 +25,13 @@ class CustomModeThermostat(ClimateEntity):
     def __init__(self):
         """Initialise le thermostat avec des valeurs par défaut."""
         self._name = "Thermostat personnalisé"
-        self._current_temperature = 20.0
-        self._target_temperature = 22.0
+        comm = Communication()
+        comm.connect()
+        trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
+        thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
+        comm.close()
+        self._target_temperature = thermostat_data["TEMPERATURE"]
+        self._current_temperature = thermostat_data["ACTUELLE"]
         self._hvac_mode = "auto"  # Mode par défaut
 
     @property
@@ -95,6 +100,6 @@ class CustomModeThermostat(ClimateEntity):
         trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
         thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
         comm.close()
-        self._target_temperature = thermostat_data["ACTUELLE"]
-        self._current_temperature = thermostat_data["TEMPERATURE"]
+        self._target_temperature = thermostat_data["TEMPERATURE"]
+        self._current_temperature = thermostat_data["ACTUELLE"]
         pass
