@@ -51,7 +51,6 @@ class Communication:
                             datas = extract_data(response, datastruct)
                             return datas
             else:
-                time.sleep(1)
                 tries = tries + 1
 
     def send(self, trame):
@@ -75,8 +74,6 @@ class Communication:
                     # Vérification du SA et DA dans la réponse
                     if function == trame.ack_f: # On vérifie que la réponse correspond bien à l'ack. and da_received == sa_sent and sa_received == da_sent:
                         ack_received = True
-                else:
-                    time.sleep(1)
 
     def listenFrame(self, param):
         """Écoute une trame et retourne les valeurs pour chaque capteur."""
