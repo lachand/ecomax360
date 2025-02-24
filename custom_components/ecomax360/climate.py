@@ -46,6 +46,8 @@ class CustomModeThermostat(ClimateEntity):
         thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
         comm.close()
         _LOGGER.error(thermostat_data)
+        _LOGGER.error(thermostat_data['MODE'])
+        _LOGGER.error(EM_TO_HA_MODES[thermostat_data['MODE']])
         self._target_temperature = 20#thermostat_data["ACTUELLE"]
         self._current_temperature = 20#thermostat_data["TEMPERATURE"]
         self._preset_mode = 0#thermostat_data['MODE']
@@ -179,6 +181,9 @@ class CustomModeThermostat(ClimateEntity):
         comm.close()
         self._target_temperature = thermostat_data["ACTUELLE"]
         self._current_temperature = thermostat_data["TEMPERATURE"]
+        _LOGGER.error(thermostat_data['MODE'])
+        _LOGGER.error(EM_TO_HA_MODES[thermostat_data['MODE']])
+        _LOGGER.error(thermostat_data)
         self._preset_mode = EM_TO_HA_MODES[thermostat_data['MODE']]
         self.auto = thermostat_data['AUTO']
         self.heating = thermostat_data["HEATING"]
