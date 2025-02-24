@@ -19,8 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({})
 
-EM_TO_HA_MODES = [
-    "MODE": {
+EM_TO_HA_MODES = {
         0 : "HOME",
         1 : "ECO",
         2 : "COMFORT",
