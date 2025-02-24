@@ -6,7 +6,7 @@ import struct
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA, HVACAction, PRESET_AWAY,PRESET_COMFORT,PRESET_ECO
-from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature, ATTR_MODE
 from homeassistant.components.climate.const import (
     ClimateEntityFeature,
     HVACMode
@@ -70,7 +70,6 @@ class CustomModeThermostat(ClimateEntity):
         self.auto = 1#thermostat_data['AUTO']
         self.heating = 0#thermostat_data["HEATING"]
         self._hvac_mode = "auto"  # Mode par défaut
-        self._preset_modes = list(HA_TO_EM_MODE)
         
     @property
     def hvac_action(self):
@@ -118,13 +117,13 @@ class CustomModeThermostat(ClimateEntity):
             HVACMode.AUTO
         ]
 
-    #@property
-    #def preset_modes(self):
-    #    """
-    #    Liste des presets personnalisés.
-    #    Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
-    #    """
-    #    return ["Auto","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
+    @property
+    def preset_modes(self):
+        """
+        Liste des presets personnalisés.
+        Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
+        """
+        return list(HA_TO_EM_MODE)
 
     @property
     def preset_mode(self):
