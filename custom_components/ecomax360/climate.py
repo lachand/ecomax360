@@ -14,6 +14,7 @@ from homeassistant.components.climate.const import (
 from .communication import Communication
 from .parameters import THERMOSTAT, ECOMAX
 from .trame import Trame
+from typing import Final
 
 _LOGGER = logging.getLogger(__name__)
 
