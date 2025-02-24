@@ -53,6 +53,24 @@ class CustomModeThermostat(ClimateEntity):
         self._hvac_mode = "auto"  # Mode par défaut
         
     @property
+    def icon(self):
+        """Retourne l'icône associée au preset courant."""
+        preset = self.preset_mode
+        icons = {
+            "SCHEDULE": "mdi:calendar",
+            PRESET_ECO: "mdi:leaf",
+            PRESET_COMFORT: "mdi:home",
+            PRESET_AWAY: "mdi:account-off",
+            "AIRING": "mdi:air-conditioner",
+            "PARTY": "mdi:party-popper",
+            "HOLIDAYS": "mdi:beach",
+            "ANTIFREEZE": "mdi:thermometer-off",
+        }
+        _LOGGER.error(preset)
+        _LOGGER.error(icons.get(preset, "mdi:thermometer"))
+        return icons.get(preset, "mdi:thermometer")
+        
+    @property
     def hvac_action(self):
         """
         Retourne l'action actuelle du thermostat.
