@@ -6,7 +6,7 @@ import struct
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA, HVACAction, PRESET_AWAY,PRESET_COMFORT,PRESET_ECO
-from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature, ATTR_MODE
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.components.climate.const import (
     ClimateEntityFeature,
     HVACMode
@@ -14,38 +14,20 @@ from homeassistant.components.climate.const import (
 from .communication import Communication
 from .parameters import THERMOSTAT, ECOMAX
 from .trame import Trame
-from typing import Final
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({})
 
-PRESET_SCHEDULE: Final = "schedule"
-PRESET_AIRING: Final = "airing"
-PRESET_PARTY: Final = "party"
-PRESET_HOLIDAYS: Final = "holidays"
-PRESET_ANTIFREEZE: Final = "antifreeze"
-PRESET_UNKNOWN: Final = "unknown"
-
-EM_TO_HA_MODE: Final[dict[int, str]] = {
-    0: PRESET_SCHEDULE,
-    1: PRESET_ECO,
-    2: PRESET_COMFORT,
-    3: PRESET_AWAY,
-    4: PRESET_AIRING,
-    5: PRESET_PARTY,
-    6: PRESET_HOLIDAYS,
-    7: PRESET_ANTIFREEZE,
-}
-HA_TO_EM_MODE: Final = {v: k for k, v in EM_TO_HA_MODE.items()}
-
-HA_PRESET_TO_EM_TEMP: Final[dict[str, str]] = {
-    PRESET_ECO: "night_target_temp",
-    PRESET_COMFORT: "day_target_temp",
-    PRESET_AWAY: "night_target_temp",
-    PRESET_PARTY: "party_target_temp",
-    PRESET_HOLIDAYS: "holidays_target_temp",
-    PRESET_ANTIFREEZE: "antifreeze_target_temp",
+EM_TO_HA_MODES = {
+        0 : "SCHEDULE",
+        1 : PRESET_ECO,
+        2 : PRESET_COMFORT,
+        3 : PRESET_AWAY,
+        4 : "AIRING",
+        5 : "PARTY",
+        6 : "HOLIDAYS",
+        7 : "ANTIFREEZE"
 }
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -117,13 +99,13 @@ class CustomModeThermostat(ClimateEntity):
             HVACMode.AUTO
         ]
 
-    @property
-    def preset_modes(self):
-        """
-        Liste des presets personnalisés.
-        Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
-        """
-        return list(HA_TO_EM_MODE)
+    #@property
+    #def preset_modes(self):
+    #    """
+    #    Liste des presets personnalisés.
+    #    Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
+    #    """
+    #    return ["Auto","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
 
     @property
     def preset_mode(self):
@@ -195,16 +177,9 @@ class CustomModeThermostat(ClimateEntity):
         trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
         thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
         comm.close()
-        
-        if(thermostat_data["ACTUELLE"] >= 5 and thermostat_data["ACTUELLE"] <= 50):
-            self._target_temperature = thermostat_data["ACTUELLE"]
-        if(thermostat_data["TEMPERATURE"] >= 5 and thermostat_data["TEMPERATURE"] <= 50):
-            self._current_temperature = thermostat_data["TEMPERATURE"]
-            
-        self._preset_mode = EM_TO_HA_MODE[thermostat_data['MODE']]
-        
-        _LOGGER.error("Mode  EM actuel %s", thermostat_data['MODE'])
-        _LOGGER.error("Mode  actuel %s", self._preset_mode)
+        self._target_temperature = thermostat_data["ACTUELLE"]
+        self._current_temperature = thermostat_data["TEMPERATURE"]
+        self._preset_mode = EM_TO_HA_MODES[thermostat_data['MODE']]
         self.auto = thermostat_data['AUTO']
         self.heating = thermostat_data["HEATING"]
         _LOGGER.error(thermostat_data)
