@@ -16,7 +16,8 @@ THERMOSTAT = {
     "TEMPERATURE": {"index": 31, "type": float},
     "JOUR": {"index": 41, "type": float},
     "NUIT": {"index": 46, "type": float},
-    "ACTUELLE": {"index": 36, "type": float}
+    "ACTUELLE": {"index": 36, "type": float},
+    "HEATING": {"index" : 27, "type" : int}
 }
 
 SET_CODE = "55 53 45 52 2d 30 30 30 00 34 30 39 35 00"
