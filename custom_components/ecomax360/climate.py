@@ -98,13 +98,14 @@ class CustomModeThermostat(ClimateEntity):
             HVACMode.AUTO
         ]
 
-    #@property
-    #def preset_modes(self):
-    #    """
-    #    Liste des presets personnalisés.
-    #    Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
-    #    """
-    #    return ["Auto","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
+    @property
+    def preset_modes(self):
+        """
+        Liste des presets personnalisés.
+        Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
+        """
+        return ["SCHEDULE",PRESET_ECO,PRESET_COMFORT,PRESET_AWAY,"AIRING","PARTY","HOLIDAYS","ANTIFREEZE"]
+        #return ["Auto","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
 
     @property
     def preset_mode(self):
@@ -184,5 +185,5 @@ class CustomModeThermostat(ClimateEntity):
         self._preset_mode = EM_TO_HA_MODES[thermostat_data['MODE']]
         self.auto = thermostat_data['AUTO']
         self.heating = thermostat_data["HEATING"]
-        _LOGGER.error(thermostat_data)
+        _LOGGER.error(self._preset_mode)
         pass
