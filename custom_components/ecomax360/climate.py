@@ -5,7 +5,7 @@ import voluptuous as vol
 import struct
 
 import homeassistant.helpers.config_validation as cv
-from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA, HVACAction
+from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA, HVACAction, PRESET_AWAY,PRESET_COMFORT,PRESET_ECO
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.components.climate.const import (
     ClimateEntityFeature,
@@ -19,15 +19,32 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({})
 
-EM_TO_HA_MODES = {
-        0 : "HOME",
-        1 : "ECO",
-        2 : "COMFORT",
-        3 : "AWAY",
-        4 : "SLEEP",
-        5 : "BOOST",
-        6 : "AWAY",
-        7 : "AWAY"
+PRESET_SCHEDULE: Final = "schedule"
+PRESET_AIRING: Final = "airing"
+PRESET_PARTY: Final = "party"
+PRESET_HOLIDAYS: Final = "holidays"
+PRESET_ANTIFREEZE: Final = "antifreeze"
+PRESET_UNKNOWN: Final = "unknown"
+
+EM_TO_HA_MODE: Final[dict[int, str]] = {
+    0: PRESET_SCHEDULE,
+    1: PRESET_ECO,
+    2: PRESET_COMFORT,
+    3: PRESET_AWAY,
+    4: PRESET_AIRING,
+    5: PRESET_PARTY,
+    6: PRESET_HOLIDAYS,
+    7: PRESET_ANTIFREEZE,
+}
+HA_TO_EM_MODE: Final = {v: k for k, v in EM_TO_HA_MODE.items()}
+
+HA_PRESET_TO_EM_TEMP: Final[dict[str, str]] = {
+    PRESET_ECO: "night_target_temp",
+    PRESET_COMFORT: "day_target_temp",
+    PRESET_AWAY: "night_target_temp",
+    PRESET_PARTY: "party_target_temp",
+    PRESET_HOLIDAYS: "holidays_target_temp",
+    PRESET_ANTIFREEZE: "antifreeze_target_temp",
 }
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -52,6 +69,7 @@ class CustomModeThermostat(ClimateEntity):
         self.auto = 1#thermostat_data['AUTO']
         self.heating = 0#thermostat_data["HEATING"]
         self._hvac_mode = "auto"  # Mode par défaut
+        self._preset_modes = list(HA_TO_EM_MODE)
         
     @property
     def hvac_action(self):
@@ -183,7 +201,7 @@ class CustomModeThermostat(ClimateEntity):
         if(thermostat_data["TEMPERATURE"] >= 5 and thermostat_data["TEMPERATURE"] <= 50):
             self._current_temperature = thermostat_data["TEMPERATURE"]
             
-        self._preset_mode = EM_TO_HA_MODES[thermostat_data['MODE']]
+        self._preset_mode = EM_TO_HA_MODE[thermostat_data['MODE']]
         
         _LOGGER.error("Mode  EM actuel %s", thermostat_data['MODE'])
         _LOGGER.error("Mode  actuel %s", self._preset_mode)
