@@ -66,7 +66,7 @@ class Communication:
         da_sent = trame[4:8]  # DA envoyé
         sa_sent = trame[8:12]  # SA envoyé
         tries = 0
-        max_tries = 30
+        max_tries = 15
 
         while not ack_received and tries < max_tries:
             self.socket.sendall(trame)
@@ -78,14 +78,12 @@ class Communication:
                 if len(response) >= 14:  # Vérification d'une taille minimale
                     #da_received = response[8:12]  # DA reçu
                     #sa_received = response[4:8]  # SA reçu
-                    function = response[14:12]  # Code fonction
-                    
+                    function = response[12:14]  # Code fonction
 
                     # Vérification du SA et DA dans la réponse
                     if function == ack_f: # On vérifie que la réponse correspond bien à l'ack. and da_received == sa_sent and sa_received == da_sent:
                         ack_received = True
             tries = tries + 1
-            time.sleep(1)
 
     def listenFrame(self, param):
         """Écoute une trame et retourne les valeurs pour chaque capteur."""
