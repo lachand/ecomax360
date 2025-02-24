@@ -19,6 +19,18 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({})
 
+EM_TO_HA_MODES = [
+    "MODE": {
+        0 : "HOME",
+        1 : "ECO",
+        2 : "COMFORT",
+        3 : "AWAY",
+        4 : "SLEEP",
+        5 : "BOOST",
+        6 : "AWAY",
+        7 : "AWAY"
+}
+
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Initialise la plateforme thermostat."""
     add_entities([CustomModeThermostat()])
@@ -88,13 +100,13 @@ class CustomModeThermostat(ClimateEntity):
             HVACMode.AUTO
         ]
 
-    @property
-    def preset_modes(self):
-        """
-        Liste des presets personnalisés.
-        Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
-        """
-        return ["Auto","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
+    #@property
+    #def preset_modes(self):
+    #    """
+    #    Liste des presets personnalisés.
+    #    Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
+    #    """
+    #    return ["Auto","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
 
     @property
     def preset_mode(self):
@@ -168,7 +180,7 @@ class CustomModeThermostat(ClimateEntity):
         comm.close()
         self._target_temperature = thermostat_data["ACTUELLE"]
         self._current_temperature = thermostat_data["TEMPERATURE"]
-        self._preset_mode = thermostat_data['MODE']
+        self._preset_mode = EM_TO_HA_MODES[thermostat_data['MODE']]
         self.auto = thermostat_data['AUTO']
         self.heating = thermostat_data["HEATING"]
         _LOGGER.error(thermostat_data)
