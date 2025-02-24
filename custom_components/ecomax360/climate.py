@@ -5,7 +5,7 @@ import voluptuous as vol
 import struct
 
 import homeassistant.helpers.config_validation as cv
-from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
+from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA, HVACAction
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.components.climate.const import (
     ClimateEntityFeature,
@@ -34,13 +34,26 @@ class CustomModeThermostat(ClimateEntity):
         trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
         thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
         comm.close()
-        self._target_temperature = thermostat_data["ACTUELLE"]
-        self._current_temperature = thermostat_data["TEMPERATURE"]
-        self._preset_mode = thermostat_data['MODE']
         _LOGGER.error(thermostat_data)
-        self.auto = thermostat_data['AUTO']
+        self._target_temperature = 20#thermostat_data["ACTUELLE"]
+        self._current_temperature = 20#thermostat_data["TEMPERATURE"]
+        self._preset_mode = 0#thermostat_data['MODE']
+        self.auto = 1#thermostat_data['AUTO']
+        self.heating = 0#thermostat_data["HEATING"]
         self._hvac_mode = "auto"  # Mode par défaut
-
+        
+    @property
+    def hvac_action(self):
+        """
+        Retourne l'action actuelle du thermostat.
+        Ici, on considère que si le mode est chauffage et que la température actuelle
+        est inférieure à la consigne, le chauffage est actif.
+        """
+        if self.heating == 1:
+            return HVACAction.HEATING
+        else :
+            return HVACAction.IDLE
+               
     @property
     def name(self):
         """Renvoie le nom du thermostat."""
@@ -104,7 +117,7 @@ class CustomModeThermostat(ClimateEntity):
         """Renvoie les fonctionnalités supportées par ce thermostat."""
         return (
         ClimateEntityFeature.PRESET_MODE
-        | ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TARGET_TEMPERATURE
+        | ClimateEntityFeature.TARGET_TEMPERATURE
     )
     
     @property
@@ -157,5 +170,6 @@ class CustomModeThermostat(ClimateEntity):
         self._current_temperature = thermostat_data["TEMPERATURE"]
         self._preset_mode = thermostat_data['MODE']
         self.auto = thermostat_data['AUTO']
+        self.heating = thermostat_data["HEATING"]
         _LOGGER.error(thermostat_data)
         pass
