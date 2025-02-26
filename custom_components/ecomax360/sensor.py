@@ -14,19 +14,17 @@ message = f"Démarrage de la configuration des capteurs EcoMax360"
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+    trame = Trame("FFFF", "0100", "40", "c0", "640000","").build()
     comm = Communication()
     comm.connect()
-    trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
-    thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
-    #ecomax_data = comm.listenFrame("GET_DATAS") or {}
+    datas = comm.request(trame, ECOMAX, "3130303538343230303400", "c0")
+    _LOGGER.info(trame)
+    _LOGGER.info(datas)
     comm.close()
 
     sensors = [EcomaxSensor(name, key, comm) for key, name in {
-            **{key: f"EcoMax {key}" for key in ECOMAX.keys()}
+            **{key: f"EcoMax {key}" for key in ["BALLON_TAMPON"]}#ECOMAX.keys()}
     }.items()]
-
-    message = f"Nombre de capteurs détectés : {len(sensors)}"
-    logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     async_add_entities(sensors, True)
 
@@ -77,14 +75,13 @@ class EcomaxSensor(SensorEntity):
         return self.ICONS.get(self._param, "mdi:help-circle")  # Icône par défaut si non trouvé
 
     async def async_update(self):
+        trame = Trame("FFFF", "0100", "40", "c0", "640000","").build()
         comm = Communication()
         comm.connect()
-        data = self._comm.listenFrame("GET_DATAS") or {}
-        data.update(self._comm.listenFrame("GET_DATAS") or {})
-        comm.close()
+        data = comm.request(trame, ECOMAX, "3130303538343230303400", "c0")
         new_value = data.get(self._param)
                              
-        if new_value is not None:
+        if new_value is not None and new_value > 5 and new_value < 105:
             try:
                 self._state = round(float(new_value), 2)
                 EcomaxSensor.previous_values[self._param] = self._state
@@ -92,5 +89,5 @@ class EcomaxSensor(SensorEntity):
                 self._state = STATE_UNKNOWN
         else:
             self._state = EcomaxSensor.previous_values.get(self._param, STATE_UNKNOWN)
-        message = f"Capteur {self._name} mis à jour : {self._state}"
-        logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        _LOGGER.info(data)
+        comm.close()
