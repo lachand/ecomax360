@@ -29,11 +29,12 @@ class Communication:
                 Envoie une trame et attend un ACK en réponse.
                 Si aucun ACK n'est reçu, la trame est renvoyée toutes les secondes.
                 """
+            
         ack_received = False
-        da_sent = trame[4:8]  # DA envoyé
-        sa_sent = trame[8:12]  # SA envoyé
+        #da_sent = trame[4:8]  # DA envoyé
+        #sa_sent = trame[8:12]  # SA envoyé
 
-        max_tries = 10
+        max_tries = 1
         tries = 0
 
         while not ack_received and tries < max_tries:
@@ -49,7 +50,7 @@ class Communication:
                     function = response[14:16]  # Code fonction
 
                     # Vérification du SA et DA dans la réponse
-                    if function == ack_f and len(response) == 116:  # On vérifie que la réponse correspond bien à l'ack. and da_received == sa_sent and sa_received == da_sent:
+                    if function == ack_f : #and len(response) == 116:  # On vérifie que la réponse correspond bien à l'ack. and da_received == sa_sent and sa_received == da_sent:
                         ack_received = True
                         if dataToSearch in response:  # and len(response) == 116:
                             datas = extract_data(response, datastruct)
@@ -62,11 +63,12 @@ class Communication:
         Envoie une trame et attend un ACK en réponse.
         Si aucun ACK n'est reçu, la trame est renvoyée toutes les secondes.
         """
+        _LOGGER.info(trame)
         ack_received = False
-        da_sent = trame[4:8]  # DA envoyé
-        sa_sent = trame[8:12]  # SA envoyé
+        #da_sent = trame[4:8]  # DA envoyé
+        #sa_sent = trame[8:12]  # SA envoyé
         tries = 0
-        max_tries = 15
+        max_tries = 5
 
         while not ack_received and tries < max_tries:
             self.socket.sendall(trame)
