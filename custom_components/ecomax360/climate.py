@@ -45,30 +45,13 @@ class CustomModeThermostat(ClimateEntity):
         trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
         thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
         comm.close()
-        self._target_temperature = 20#thermostat_data["ACTUELLE"]
-        self._current_temperature = 20#thermostat_data["TEMPERATURE"]
-        self._preset_mode = 0#thermostat_data['MODE']
-        self.auto = 1#thermostat_data['AUTO']
-        self.heating = 0#thermostat_data["HEATING"]
-        self._hvac_mode = "auto"  # Mode par défaut
-        
-    @property
-    def icon(self):
-        """Retourne l'icône associée au preset courant."""
-        preset = self.preset_mode
-        icons = {
-            "SCHEDULE": "mdi:calendar",
-            PRESET_ECO: "mdi:leaf",
-            PRESET_COMFORT: "mdi:home",
-            PRESET_AWAY: "mdi:account-off",
-            "AIRING": "mdi:air-conditioner",
-            "PARTY": "mdi:party-popper",
-            "HOLIDAYS": "mdi:beach",
-            "ANTIFREEZE": "mdi:thermometer-off",
-        }
-        _LOGGER.error(preset)
-        _LOGGER.error(icons.get(preset, "mdi:thermometer"))
-        return icons.get(preset, "mdi:thermometer")
+        self._target_temperature = 20
+        self._current_temperature = 20
+        self._preset_mode = 0
+        self.auto = 1
+        self.heating = 0
+        self._hvac_mode = "auto"
+        self._attr_unique_id = f"Ester_X40_temperature"
         
     @property
     def hvac_action(self):
@@ -123,7 +106,6 @@ class CustomModeThermostat(ClimateEntity):
         Ce sont vos anciens 'modes' : jour, nuit, hors gel, aération, party, vacances...
         """
         return ["SCHEDULE",PRESET_ECO,PRESET_COMFORT,PRESET_AWAY,"AIRING","PARTY","HOLIDAYS","ANTIFREEZE"]
-        #return ["Auto","Nuit","Jour","Exterieur","Aération","Fête","Vacances","Hors-gel"]
 
     @property
     def preset_mode(self):
@@ -139,6 +121,27 @@ class CustomModeThermostat(ClimateEntity):
             _LOGGER.error("Preset %s non supporté", preset_mode)
             return
         self._preset_mode = preset_mode
+
+        mode_code = "011e01"
+        if self._preset_mode == "SCHEDULE" :
+            code = "03"
+        elif self._preset_mode == PRESET_COMFORT :
+            code = "01"
+        elif self._preset_mode == PRESET_ECO :
+            code = "02"
+        elif self._preset_mode == "ANTIFREEZE" :
+            code = "07"
+        else : code = "00"
+            
+
+        trame = Trame("6400","0100","29","a9",mode_code,code).build()
+
+        comm = Communication()
+        comm.connect()
+        comm.send(trame,"a9")
+        comm.close()
+        
+        self.update()
         self.schedule_update_ha_state()
 
     @property
@@ -160,9 +163,6 @@ class CustomModeThermostat(ClimateEntity):
         if temperature is None:
             return
         self._target_temperature = temperature
-
-        _LOGGER.error(self._preset_mode)
-        _LOGGER.error(self.auto)
         
         if self._preset_mode == 1 or self._preset_mode == 0 and self.auto == 1 :
             code = "012001"
@@ -179,6 +179,7 @@ class CustomModeThermostat(ClimateEntity):
         comm.close()
         
         self.schedule_update_ha_state()
+        self.update()
 
     def set_hvac_mode(self, hvac_mode):
         """Change le mode de fonctionnement du thermostat."""
@@ -195,13 +196,11 @@ class CustomModeThermostat(ClimateEntity):
         trame = Trame("64 00", "20 00", "40", "c0", "647800","").build()
         thermostat_data = comm.request(trame,THERMOSTAT, "265535445525f78343","c0") or {}
         comm.close()
-        self._target_temperature = thermostat_data["ACTUELLE"]
-        self._current_temperature = thermostat_data["TEMPERATURE"]
-        _LOGGER.error(thermostat_data['MODE'])
-        _LOGGER.error(EM_TO_HA_MODES[thermostat_data['MODE']])
-        _LOGGER.error(thermostat_data)
+        if thermostat_data["ACTUELLE"] > 5 and thermostat_data["ACTUELLE"] < 35 :
+            self._target_temperature = thermostat_data["ACTUELLE"]
+        if thermostat_data["TEMPERATURE"] > 5 and thermostat_data["TEMPERATURE"] < 35 :
+            self._current_temperature = thermostat_data["TEMPERATURE"]
         self._preset_mode = EM_TO_HA_MODES[thermostat_data['MODE']]
         self.auto = thermostat_data['AUTO']
         self.heating = thermostat_data["HEATING"]
-        _LOGGER.error(self._preset_mode)
         pass
