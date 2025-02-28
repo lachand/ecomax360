@@ -3,7 +3,7 @@ from datetime import timedelta
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.core import HomeAssistant
 from .api import EcoMAXAPI
-from .parameters import DOMAIN, PARAMETER
+from .parameters import PARAMETER
 
 _LOGGER = logging.getLogger(__name__)
 
