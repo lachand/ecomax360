@@ -12,7 +12,7 @@ class EcomaxCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass, _LOGGER, name="ecomax360",
             update_method=self.async_update_data,
-            update_interval=timedelta(seconds=30),
+            update_interval=timedelta(seconds=60),
         )
         self.api = api
 
