@@ -1,45 +1,44 @@
+"""Gestion des trames de communication pour ecoMAX360."""
+
+import logging
 from .utils import int16_to_hex, extract_float
 from .parameters import SET_CODE
-import logging
 
 _LOGGER = logging.getLogger(__name__)
 
 class Trame:
-    def __init__(self, dest, source, f, ack_f, param, value_hex):
+    """Classe pour construire et analyser les trames ecoMAX360."""
+
+    def __init__(self, dest, source, f, ack_f, param, value_hex=""):
+        """Initialisation d'une trame avec ses paramètres."""
         self.da0 = dest[:2]
         self.da1 = dest[2:]
         self.sa0 = source[:2]
         self.sa1 = source[2:]
         self.f = f
         self.ack_f = ack_f
-        if f == "29" :
-            self.data = f"{SET_CODE} {param} {value_hex}"
-        else :
-            self.data = f"{param}"
-
+        self.data = f"{SET_CODE} {param} {value_hex}" if f == "29" else f"{param}"
         self.l0, self.l1 = self.calculate_length()
 
     def extract_data(self, dataStruct):
+        """Extrait les valeurs de la trame reçue en fonction de la structure des données."""
         values = {}
         data_bytes = bytes.fromhex(self.data)
 
         for key in dataStruct:
-            if dataStruct[key]["type"] == int :
+            if dataStruct[key]["type"] == int:
                 values[key] = data_bytes[dataStruct[key]["index"]]
             else:
                 values[key] = extract_float(data_bytes, data_bytes[dataStruct[key]["index"]])
 
-        print(values)
-
+        _LOGGER.debug("Données extraites : %s", values)
         return values
 
     def calculate_length(self):
-        """Calcule la taille de la trame en fonction des champs DA, SA, F et DATA."""
+        """Calcule la taille de la trame pour s'assurer qu'elle respecte le format ecoMAX."""
         size_DA = 2
         size_SA = 2
         size_F = 1
-        _LOGGER.info(self.data)
-        _LOGGER.info(bytes.fromhex(self.data))
         size_DATA = len(bytes.fromhex(self.data))
 
         total_size = size_DA + size_SA + size_F + size_DATA
@@ -48,19 +47,18 @@ class Trame:
         return length_hex[:2], length_hex[2:]
 
     def build(self):
-        """Construit la trame complète avec le CRC."""
+        """Construit la trame complète avec le CRC pour l'envoi."""
         trame_crc_hex = f"{self.l0} {self.l1} {self.sa0} {self.sa1} {self.da0} {self.da1} {self.f} {self.data}"
         trame_crc_bytes = bytes.fromhex(trame_crc_hex)
 
         crc_bytes = self.calculate_crc(trame_crc_bytes)
         trame_hex = f"68 {trame_crc_hex} {crc_bytes.hex()} 16"
 
-        print(trame_hex)
-
+        _LOGGER.debug("Trame construite : %s", trame_hex)
         return bytes.fromhex(trame_hex)
 
     def calculate_crc(self, data: bytes):
-        """Calcule le CRC-CCITT (XModem)."""
+        """Calcule le CRC-CCITT (XModem) pour la validation de la trame."""
         crc = 0x0000
         poly = 0x1021
 

@@ -1,13 +1,20 @@
 import logging
-from homeassistant.helpers.discovery import load_platform
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
+from .coordinator import EcomaxCoordinator
+from .api import EcoMAXAPI
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
-DOMAIN = "ecomax360"
 
-def setup(hass, config):
-    """Configuration de l'intégration."""
-    _LOGGER.info("Démarrage de EcoMax360")
-    #load_platform(hass, "sensor", DOMAIN, {}, config)
-    load_platform(hass, "climate", DOMAIN, {}, config)
-    #load_platform(hass, "switch", DOMAIN, {}, config)
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    _LOGGER.info("Initialisation de ecomax360")
+
+    api = EcoMAXAPI()
+    coordinator = EcomaxCoordinator(hass, api)
+    await coordinator.async_config_entry_first_refresh()
+
+    hass.data[DOMAIN] = {"coordinator": coordinator, "api": api}
+    hass.config_entries.async_setup_platforms(entry, ["sensor", "climate"])
+
     return True

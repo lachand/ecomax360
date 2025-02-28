@@ -1,4 +1,7 @@
 DOMAIN = "ecomax360"
-DEFAULT_HOST = "192.168.1.37"
-DEFAULT_PORT = 8899
-SCAN_INTERVAL = 30
+
+SENSOR_TYPES = {
+    "water_temperature": "Température Eau",
+    "exhaust_temperature": "Température Fumées",
+    "power": "Puissance en %",
+}
