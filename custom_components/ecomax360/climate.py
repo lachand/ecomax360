@@ -22,6 +22,7 @@ EM_TO_HA_MODES = {
 async def async_setup_entry(hass, config_entry, async_add_entities):
     api = EcoMAXAPI()
     async_add_entities([EcomaxThermostat(api)])
+    _LOGGER.error('Configuration climate.py')
 
 class EcomaxThermostat(ClimateEntity):
     def __init__(self, api):
@@ -35,6 +36,7 @@ class EcomaxThermostat(ClimateEntity):
         self.heating = 0
         self._attr_unique_id = "ecomax360_thermostat"
         self.update()
+        _LOGGER.error('Configuration climate.py terminee')
 
     @property
     def hvac_action(self):
@@ -63,8 +65,10 @@ class EcomaxThermostat(ClimateEntity):
 
     def update(self):
         trame = "64 00 20 00 40 c0 647800"
+        _LOGGER.error(trame)
         data = self.api.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
-        if data:
+        _LOGGER.error(data)
+         data:
             self._target_temperature = data.get("ACTUELLE", 20)
             self._current_temperature = data.get("TEMPERATURE", 20)
             self._preset_mode = EM_TO_HA_MODES.get(data.get("MODE", 0), "SCHEDULE")
