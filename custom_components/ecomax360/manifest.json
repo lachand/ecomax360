@@ -1,10 +1,12 @@
 {
   "domain": "ecomax360",
-  "name": "ecoMAX 360 Integration",
-  "version": "1.0.0",
-  "documentation": "https://github.com/lachand/ecomax360",
-  "dependencies": [],
-  "codeowners": ["@lachand"],
+  "name": "EcoMax360 Controller",
+  "version": "0.2",
   "requirements": [],
-  "iot_class": "local_polling"
+  "codeowners": ["@lachand"],
+  "dependencies": [],
+  "iot_class": "local_polling",
+  "resources": ["custom_components/ecomax360/icon.png"],
+  "logo": "custom_components/ecomax360/icon.png",
+  "config_flow": true
 }
