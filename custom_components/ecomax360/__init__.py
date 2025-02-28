@@ -44,7 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _LOGGER.info(f"Connexion à EcoMAX360 - Hôte : {host}, Port : {port}")
 
-    api = EcoMAXAPI(host, port)
+    api = EcoMAXAPI()
     coordinator = EcomaxCoordinator(hass, api)
 
     await coordinator.async_config_entry_first_refresh()

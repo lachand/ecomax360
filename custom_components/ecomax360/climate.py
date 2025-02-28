@@ -68,9 +68,9 @@ class EcomaxThermostat(ClimateEntity):
         _LOGGER.error(trame)
         data = self.api.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
         _LOGGER.error(data)
-         data:
-            self._target_temperature = data.get("ACTUELLE", 20)
-            self._current_temperature = data.get("TEMPERATURE", 20)
-            self._preset_mode = EM_TO_HA_MODES.get(data.get("MODE", 0), "SCHEDULE")
-            self.auto = data.get("AUTO", 1)
-            self.heating = data.get("HEATING", 0)
+        #data:
+         #   self._target_temperature = data.get("ACTUELLE", 20)
+          #  self._current_temperature = data.get("TEMPERATURE", 20)
+           # self._preset_mode = EM_TO_HA_MODES.get(data.get("MODE", 0), "SCHEDULE")
+            #self.auto = data.get("AUTO", 1)
+            #self.heating = data.get("HEATING", 0)
