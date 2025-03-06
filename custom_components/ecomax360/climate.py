@@ -41,11 +41,14 @@ class CustomModeThermostat(ClimateEntity):
         self._name = "Thermostat personnalisé"
         self._target_temperature = 20
         self._current_temperature = 20
-        self._preset_mode = 0
+        self._preset_mode = "SCHEDULE"
         self.auto = 1
         self.heating = 0
-        self._hvac_mode = "auto"
+        self._hvac_mode = HVACMode.AUTO
         self._attr_unique_id = "Ester_X40_temperature"
+        self._attr_supported_features = (
+            ClimateEntityFeature.PRESET_MODE | ClimateEntityFeature.TARGET_TEMPERATURE
+        )
 
     @property
     def hvac_action(self):
@@ -77,20 +80,20 @@ class CustomModeThermostat(ClimateEntity):
 
     @property
     def preset_modes(self):
-        return ["SCHEDULE", PRESET_ECO, PRESET_COMFORT, PRESET_AWAY, "AIRING", "PARTY", "HOLIDAYS", "ANTIFREEZE"]
+        return list(EM_TO_HA_MODES.values())
 
     @property
     def preset_mode(self):
         return self._preset_mode
 
-    async def set_preset_mode(self, preset_mode):
+    async def async_set_preset_mode(self, preset_mode):
         if preset_mode not in self.preset_modes:
             _LOGGER.error("Preset %s non supporté", preset_mode)
             return
         self._preset_mode = preset_mode
 
         mode_code = "011e01"
-        code = {"SCHEDULE": "03", PRESET_COMFORT: "01", PRESET_ECO: "02", "ANTIFREEZE": "07"}.get(self._preset_mode, "00")
+        code = next((key for key, value in EM_TO_HA_MODES.items() if value == preset_mode), "00")
         trame = Trame("6400", "0100", "29", "a9", mode_code, code).build()
 
         comm = Communication()
@@ -98,16 +101,16 @@ class CustomModeThermostat(ClimateEntity):
         await comm.send(trame, "a9")
         await comm.close()
 
-        await self.async_update_ha_state()
         await self.async_update()
+        self.async_write_ha_state()
 
-    async def set_temperature(self, **kwargs):
+    async def async_set_temperature(self, **kwargs):
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is None:
             return
         self._target_temperature = temperature
 
-        code = "012001" if self._preset_mode in [0, 1] and self.auto == 1 else "012101"
+        code = "012001" if self._preset_mode in ["SCHEDULE", PRESET_ECO] and self.auto == 1 else "012101"
         trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
 
         comm = Communication()
@@ -115,8 +118,8 @@ class CustomModeThermostat(ClimateEntity):
         await comm.send(trame, "a9")
         await comm.close()
 
-        await self.async_update_ha_state()
         await self.async_update()
+        self.async_write_ha_state()
 
     async def async_update(self):
         comm = Communication()
@@ -133,4 +136,4 @@ class CustomModeThermostat(ClimateEntity):
         self._preset_mode = EM_TO_HA_MODES.get(thermostat_data.get("MODE", 0), "SCHEDULE")
         self.auto = thermostat_data.get("AUTO", 1)
         self.heating = thermostat_data.get("HEATING", 0)
-        await self.async_update_ha_state()
+        self.async_write_ha_state()
