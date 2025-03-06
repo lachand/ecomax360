@@ -29,6 +29,17 @@ EM_TO_HA_MODES = {
     7: "ANTIFREEZE"
 }
 
+PRESET_ICONS = {
+    "SCHEDULE": "mdi:calendar-clock",
+    PRESET_ECO: "mdi:leaf",
+    PRESET_COMFORT: "mdi:home-thermometer",
+    PRESET_AWAY: "mdi:airplane",
+    "AIRING": "mdi:weather-windy",
+    "PARTY": "mdi:glass-cocktail",
+    "HOLIDAYS": "mdi:palm-tree",
+    "ANTIFREEZE": "mdi:snowflake"
+}
+
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Initialise la plateforme thermostat."""
     add_entities([CustomModeThermostat()])
@@ -49,6 +60,7 @@ class CustomModeThermostat(ClimateEntity):
         self._attr_supported_features = (
             ClimateEntityFeature.PRESET_MODE | ClimateEntityFeature.TARGET_TEMPERATURE
         )
+        self._attr_target_temperature_step = 0.1
 
     @property
     def hvac_action(self):
@@ -69,6 +81,10 @@ class CustomModeThermostat(ClimateEntity):
     @property
     def target_temperature(self):
         return self._target_temperature
+    
+    @property
+    def target_temperature_step(self):
+        return self._attr_target_temperature_step
 
     @property
     def hvac_mode(self):
@@ -85,6 +101,11 @@ class CustomModeThermostat(ClimateEntity):
     @property
     def preset_mode(self):
         return self._preset_mode
+    
+    @property
+    def preset_mode_icon(self):
+        """Retourne l'icône associée au preset actuel."""
+        return PRESET_ICONS.get(self._preset_mode, "mdi:thermometer")
 
     async def async_set_preset_mode(self, preset_mode):
         if preset_mode not in self.preset_modes:
