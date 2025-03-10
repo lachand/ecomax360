@@ -79,7 +79,8 @@ class EcoMAXAPI:
             if datastruct[key]["type"] == int:
                 values[key] = data_bytes[datastruct[key]["index"]]
             else:
-                values[key] = extract_float(data_bytes, datastruct[key]["index"])
+                # TO FIX : Chec where it is defined as a tuple
+                values[key] = extract_float(data_bytes, datastruct[key]["index"])[0]
 
         _LOGGER.debug("Données extraites : %s", values)
         return values
