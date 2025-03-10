@@ -52,7 +52,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class CustomModeThermostat(ClimateEntity):
     """Représentation d'un thermostat avec gestion de modes personnalisés."""
 
-    def __init__(self):
+    def __init__(self, api):
         """Initialise le thermostat avec des valeurs par défaut."""
         self._name = "Thermostat personnalisé"
         self._target_temperature = 20
