@@ -1,8 +1,13 @@
 import logging
-from homeassistant.helpers.discovery import load_platform
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers import config_validation as cv
+import voluptuous as vol
+from .const import DOMAIN
+from .api import EcoMAXAPI
 
 _LOGGER = logging.getLogger(__name__)
-DOMAIN = "ecomax360"
 
 #def setup(hass, config):
 #    """Configuration de l'intégration."""
