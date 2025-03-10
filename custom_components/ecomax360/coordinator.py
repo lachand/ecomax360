@@ -4,6 +4,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from homeassistant.core import HomeAssistant
 from .api import EcoMAXAPI
 from .parameters import PARAMETER
+from .trame import Trame
 
 _LOGGER = logging.getLogger(__name__)
 
