@@ -35,7 +35,7 @@ class EcoMAXAPI:
             self.socket.close()
             self.socket = None
 
-    def send_trame(self, trame: Trame):
+    def send_trame(self, trame, ack_f):
         """Envoie une trame et retourne la réponse brute."""
         if self.socket is None:
             self.connect()
