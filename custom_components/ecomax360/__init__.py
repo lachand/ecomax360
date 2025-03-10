@@ -62,8 +62,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = {"coordinator": coordinator, "api": api}
 
     #hass.config_entries.async_setup_platforms(entry, ["sensor", "climate"])
-    await hass.config_entries.async_forward_entry_setup(entry, ["sensor", "climate"])
-    #await hass.config_entries.async_forward_entry_setup(sensor, "climate")
+    # OR await hass.config_entries.async_forward_entry_setup(entry, ["sensor", "climate"])
+    await hass.config_entries.async_forward_entry_setup(sensor, "climate")
 
     return True
 
@@ -75,4 +75,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id)
 
     #return await hass.config_entries.async_unload_platforms(entry, ["sensor", "climate"])
-    return await hass.config_entries.async_unload_platforms(entry, ["sensor","climate"])
+    return await hass.config_entries.async_unload_platforms(entry, ["climate"])
