@@ -57,7 +57,7 @@ class EcoMAXAPI:
         tries = 0
 
         while not ack_received and tries < max_tries:
-            frames = self.send_trame(trame)
+            frames = self.send_trame(trame, ack_f)
             if not frames:
                 return None
 
