@@ -133,7 +133,7 @@ class EcomaxThermostat(ClimateEntity):
         trame = Trame("64 00", "20 00", "40", "c0", "647800", "")
         thermostat_data = self.api.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
 
-        print(thermostat_data)
+        _LOGGER.warning(thermostat_data)
         
         if 5 < thermostat_data.get("ACTUELLE", 0) < 35:
             self._target_temperature = thermostat_data["ACTUELLE"]
