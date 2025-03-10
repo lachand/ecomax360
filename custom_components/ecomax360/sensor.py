@@ -22,8 +22,8 @@ class EcomaxSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"ecomax360_{key}"
         self._attr_device_class = SensorDeviceClass.TEMPERATURE if "temperature" in key.lower() else None
         self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS if "temperature" in key.lower() else PERCENTAGE
-        _LOGGER.error("init of sensor ecomax")
-        _LOGGER.error(self.coordinator.data)
+        _LOGGER.info("init of sensor ecomax")
+        _LOGGER.info(self.coordinator.data)
 
     @property
     def native_value(self):
