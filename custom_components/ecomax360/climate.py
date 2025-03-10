@@ -29,21 +29,6 @@ EM_TO_HA_MODES = {
     7: "ANTIFREEZE"
 }
 
-PRESET_ICONS = {
-    "SCHEDULE": "mdi:calendar-clock",
-    PRESET_ECO: "mdi:leaf",
-    PRESET_COMFORT: "mdi:home-thermometer",
-    PRESET_AWAY: "mdi:airplane",
-    "AIRING": "mdi:weather-windy",
-    "PARTY": "mdi:glass-cocktail",
-    "HOLIDAYS": "mdi:palm-tree",
-    "ANTIFREEZE": "mdi:snowflake"
-}
-
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Initialise la plateforme thermostat."""
-    add_entities([EcomaxThermostat()])
-
 async def async_setup_entry(hass, config_entry, async_add_entities):
     api = EcoMAXAPI()
     async_add_entities([EcomaxThermostat(api)])
