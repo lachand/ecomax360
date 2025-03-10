@@ -1,6 +1,7 @@
 from .utils import int16_to_hex, extract_float
 from .parameters import SET_CODE
 import logging
+from .trame import Trame
 
 _LOGGER = logging.getLogger(__name__)
 
