@@ -19,7 +19,8 @@ class EcomaxCoordinator(DataUpdateCoordinator):
     async def async_update_data(self):
         try:
             _LOGGER.debug("Mise à jour des données ecoMAX360...")
-            trame = "64 00 20 00 40 c0 647800"
+            trame = Trame("0100", "FFFF", "c0", "40", "", "")
+            #trame = "64 00 20 00 40 c0 647800"
             data = self.api.request(trame, PARAMETER["GET_DATAS"]["dataStruct"], PARAMETER["GET_DATAS"]["dataToSearch"], "c0")
 
             if not data:
