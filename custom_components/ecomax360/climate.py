@@ -44,6 +44,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     """Initialise la plateforme thermostat."""
     add_entities([CustomModeThermostat()])
 
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    api = EcoMAXAPI()
+    async_add_entities([EcomaxThermostat(api)])
+    _LOGGER.error('Configuration climate.py')
+
 class CustomModeThermostat(ClimateEntity):
     """Représentation d'un thermostat avec gestion de modes personnalisés."""
 
