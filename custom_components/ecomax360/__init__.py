@@ -61,7 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     #hass.data[DOMAIN][entry.entry_id] = {"coordinator": coordinator, "api": api}
 
     #hass.config_entries.async_setup_platforms(entry, ["sensor", "climate"])
-    hass.config_entries.async_setup_platforms(entry, ["climate"])
+    await hass.config_entries.async_forward_entry_setup(entry, "climate")
 
     return True
 
