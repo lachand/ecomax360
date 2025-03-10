@@ -108,9 +108,9 @@ class EcomaxThermostat(ClimateEntity):
         code = next((key for key, value in EM_TO_HA_MODES.items() if value == preset_mode), "00")
         #trame = Trame("6400", "0100", "29", "a9", mode_code, code).build()
         trame = Trame("6400", "0100", "29", "a9", mode_code, code)
-        await self.api.send_trame(trame, "a9")
+        self.api.send_trame(trame, "a9")
 
-        await self.async_update()
+        self.async_update()
         self.async_write_ha_state()
 
     async def async_set_temperature(self, **kwargs):
@@ -123,7 +123,7 @@ class EcomaxThermostat(ClimateEntity):
         #trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
         trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex())
 
-        await self.api.send_trame(trame, "a9")
+        self.api.send_trame(trame, "a9")
 
         await self.async_update()
         self.async_write_ha_state()
@@ -131,7 +131,7 @@ class EcomaxThermostat(ClimateEntity):
     async def async_update(self):
         #trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
         trame = Trame("64 00", "20 00", "40", "c0", "647800", "")
-        thermostat_data = await self.api.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
+        thermostat_data = self.api.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
         
         if 5 < thermostat_data.get("ACTUELLE", 0) < 35:
             self._target_temperature = thermostat_data["ACTUELLE"]
