@@ -119,7 +119,7 @@ class CustomModeThermostat(ClimateEntity):
         trame = Trame("6400", "0100", "29", "a9", mode_code, code).build()
 
         comm = Communication()
-        await await api.send_trame(trame, "a9")
+        await api.send_trame(trame, "a9")
 
         await self.async_update()
         self.async_write_ha_state()
