@@ -63,7 +63,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     #hass.config_entries.async_setup_platforms(entry, ["sensor", "climate"])
     # OR await hass.config_entries.async_forward_entry_setup(entry, ["sensor", "climate"])
-    await hass.config_entries.async_forward_entry_setup(sensor, "climate")
+    await hass.config_entries.async_forward_entry_setup(entry, "climate")
 
     return True
 
