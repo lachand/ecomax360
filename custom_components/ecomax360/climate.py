@@ -10,7 +10,7 @@ from homeassistant.components.climate.const import (
     ClimateEntityFeature,
     HVACMode
 )
-from .communication import Communication
+from .api import EcoMAXAPI
 from .parameters import THERMOSTAT, ECOMAX
 from .trame import Trame
 
@@ -61,6 +61,7 @@ class CustomModeThermostat(ClimateEntity):
             ClimateEntityFeature.PRESET_MODE | ClimateEntityFeature.TARGET_TEMPERATURE
         )
         self._attr_target_temperature_step = 0.1
+        self.api = api
 
     @property
     def hvac_action(self):
@@ -118,9 +119,7 @@ class CustomModeThermostat(ClimateEntity):
         trame = Trame("6400", "0100", "29", "a9", mode_code, code).build()
 
         comm = Communication()
-        await comm.connect()
-        await comm.send(trame, "a9")
-        await comm.close()
+        await await api.send_trame(trame, "a9")
 
         await self.async_update()
         self.async_write_ha_state()
@@ -135,19 +134,15 @@ class CustomModeThermostat(ClimateEntity):
         trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
 
         comm = Communication()
-        await comm.connect()
-        await comm.send(trame, "a9")
-        await comm.close()
+        await api.send_trame(trame, "a9")
 
         await self.async_update()
         self.async_write_ha_state()
 
     async def async_update(self):
         comm = Communication()
-        await comm.connect()
         trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
-        thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
-        await comm.close()
+        thermostat_data = await api.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
         
         if 5 < thermostat_data.get("ACTUELLE", 0) < 35:
             self._target_temperature = thermostat_data["ACTUELLE"]
