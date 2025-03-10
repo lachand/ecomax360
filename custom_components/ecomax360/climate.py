@@ -121,7 +121,7 @@ class EcomaxThermostat(ClimateEntity):
 
         code = "012001" if self._preset_mode in ["SCHEDULE", PRESET_ECO] and self.auto == 1 else "012101"
         #trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
-        trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
+        trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex())
 
         await self.api.send_trame(trame, "a9")
 
@@ -130,7 +130,7 @@ class EcomaxThermostat(ClimateEntity):
 
     async def async_update(self):
         #trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
-        trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
+        trame = Trame("64 00", "20 00", "40", "c0", "647800", "")
         thermostat_data = await self.api.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
         
         if 5 < thermostat_data.get("ACTUELLE", 0) < 35:
