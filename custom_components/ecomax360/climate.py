@@ -107,8 +107,6 @@ class EcomaxThermostat(ClimateEntity):
         mode_code = "011e01"
         code = next((key for key, value in EM_TO_HA_MODES.items() if value == preset_mode), "00")
         trame = Trame("6400", "0100", "29", "a9", mode_code, code).build()
-
-        comm = Communication()
         await api.send_trame(trame, "a9")
 
         await self.async_update()
@@ -123,14 +121,12 @@ class EcomaxThermostat(ClimateEntity):
         code = "012001" if self._preset_mode in ["SCHEDULE", PRESET_ECO] and self.auto == 1 else "012101"
         trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
 
-        comm = Communication()
         await api.send_trame(trame, "a9")
 
         await self.async_update()
         self.async_write_ha_state()
 
     async def async_update(self):
-        comm = Communication()
         trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
         thermostat_data = await api.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
         
