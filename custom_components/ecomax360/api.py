@@ -56,8 +56,6 @@ class EcoMAXAPI:
         max_tries = 10
         tries = 0
 
-        _LOGGER.debug("Trame envoyée: %s, trame_bytes.hex()")
-
         while not ack_received and tries < max_tries:
             frames = self.send_trame(trame, ack_f)
             if not frames:
