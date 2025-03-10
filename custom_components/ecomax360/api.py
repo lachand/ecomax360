@@ -53,7 +53,7 @@ class EcoMAXAPI:
         """Construit et envoie une trame, puis traite la réponse."""
         self.connect()
         ack_received = False
-        max_tries = 10
+        max_tries = 3
         tries = 0
 
         while not ack_received and tries < max_tries:
