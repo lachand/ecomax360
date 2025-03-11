@@ -89,6 +89,11 @@ class EcomaxThermostat(ClimateEntity):
     def preset_mode(self):
         return self._preset_mode
 
+    @property
+    def supported_features(self):
+        """Retourne les fonctionnalités supportées par le thermostat."""
+        return ClimateEntityFeature.TARGET_TEMPERATURE
+
     async def set_preset_mode(self, preset_mode):
         if preset_mode not in self.preset_modes:
             _LOGGER.error("Preset %s non supporté", preset_mode)
@@ -125,20 +130,34 @@ class EcomaxThermostat(ClimateEntity):
         await self.async_update()
 
     async def async_update(self):
-        comm = Communication()
-        await comm.connect()
-        trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
-        thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
-        await comm.close()
-        
-        _LOGGER.error("Temperatures %s", thermostat_data)
-        
-        if 5 < thermostat_data.get("ACTUELLE", 0) < 35:
-            self._target_temperature = thermostat_data["ACTUELLE"]
-        if 5 < thermostat_data.get("TEMPERATURE", 0) < 35:
-            self._current_temperature = thermostat_data["TEMPERATURE"]
-        
-        self._preset_mode = EM_TO_HA_MODES.get(thermostat_data.get("MODE", 0), "SCHEDULE")
-        self.auto = thermostat_data.get("AUTO", 1)
-        self.heating = thermostat_data.get("HEATING", 0)
-        await self.async_update_ha_state()
+    """Met à jour les informations du thermostat."""
+    comm = Communication()
+    await comm.connect()
+    trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
+    thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {"MODE": self._preset_mode,"TEMPERATURE": self._current_temperature, "ACTUELLE": self._target_temperature,"AUT0": self.auto, "HEATING": self.heating}
+    await comm.close()
+
+    _LOGGER.info("Données du thermostat reçues: %s", thermostat_data)
+
+    # Mise à jour des températures uniquement si valides
+    new_target_temp = thermostat_data.get("ACTUELLE", self._target_temperature)
+    if 10 < new_target_temp < 330:
+        self._target_temperature = new_target_temp
+    else:
+        _LOGGER.warning("Température cible hors plage : %s", new_target_temp)
+
+    new_current_temp = thermostat_data.get("TEMPERATURE", self._current_temperature)
+    if 5 < new_current_temp < 30:
+        self._current_temperature = new_current_temp
+    else:
+        _LOGGER.warning("Température actuelle hors plage : %s", new_current_temp)
+
+    # Mise à jour du mode de préréglage
+    mode = thermostat_data.get("MODE", 0)
+    self._preset_mode = EM_TO_HA_MODES.get(mode, "SCHEDULE")
+
+    # Mise à jour des états auxiliaires
+    self.auto = thermostat_data.get("AUTO", 1)
+    self.heating = thermostat_data.get("HEATING", 0)
+
+    await self.async_update_ha_state()
