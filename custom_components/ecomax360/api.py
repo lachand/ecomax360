@@ -38,6 +38,7 @@ class EcoMAXAPI:
     def send_trame(self, trame, ack_f):
         """Envoie une trame et retourne la réponse brute."""
         if self.socket is None:
+            _LOGGER.info("Reconnexion à l'ecoMAX360")
             self.connect()
         try:
             trame_bytes = trame.build()
@@ -58,9 +59,6 @@ class EcoMAXAPI:
 
         while not ack_received and tries < max_tries:
             frames = self.send_trame(trame, ack_f)
-            if not frames:
-                return None
-
             responses = re.findall(r'68.*?16', frames)
             for response in responses:
                 if len(response) >= 14 and response[14:16] == ack_f and dataToSearch in response:
