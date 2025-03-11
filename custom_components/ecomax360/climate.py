@@ -20,25 +20,25 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({})
 
 EM_TO_HA_MODES = {
-    0: "SCHEDULE",
+    0: "Calendrier",
     1: PRESET_ECO,
     2: PRESET_COMFORT,
     3: PRESET_AWAY,
-    4: "AIRING",
-    5: "PARTY",
-    6: "HOLIDAYS",
-    7: "ANTIFREEZE"
+    4: "Aération",
+    5: "Fête",
+    6: "Vacances",
+    7: "Hors-gel"
 }
 
 PRESET_ICONS = {
-    "SCHEDULE": "mdi:calendar",
+    "Calendrier": "mdi:calendar",
     PRESET_ECO: "mdi:leaf",
     PRESET_COMFORT: "mdi:sofa",
     PRESET_AWAY: "mdi:airplane",
-    "AIRING": "mdi:weather-windy",
-    "PARTY": "mdi:glass-cocktail",
-    "HOLIDAYS": "mdi:palm-tree",
-    "ANTIFREEZE": "mdi:snowflake"
+    "Aération": "mdi:weather-windy",
+    "Fête": "mdi:glass-cocktail",
+    "Vacances": "mdi:palm-tree",
+    "Hors-gel": "mdi:snowflake"
 }
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -147,7 +147,7 @@ class EcomaxThermostat(ClimateEntity):
         self._target_temperature = thermostat_data.get("ACTUELLE", self._target_temperature)
 
         mode = thermostat_data.get("MODE", 0)
-        self._preset_mode = EM_TO_HA_MODES.get(mode, "SCHEDULE")
+        self._preset_mode = EM_TO_HA_MODES.get(mode, "Calendrier")
 
         self.auto = thermostat_data.get("AUTO", 1)
         self.heating = thermostat_data.get("HEATING", 0)
