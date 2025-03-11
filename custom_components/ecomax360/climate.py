@@ -134,7 +134,7 @@ class EcomaxThermostat(ClimateEntity):
         comm = Communication()
         await comm.connect()
         trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
-        thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {"MODE": self.mode,"TEMPERATURE": self._current_temperature, "ACTUELLE": self._target_temperature,"AUT0": self.auto, "HEATING": self.heating}
+        thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {"MODE": 0,"TEMPERATURE": self._current_temperature, "ACTUELLE": self._target_temperature,"AUT0": self.auto, "HEATING": self.heating}
         await comm.close()
 
         _LOGGER.info("Données du thermostat reçues: %s", thermostat_data)
