@@ -48,7 +48,7 @@ class EcomaxThermostat(ClimateEntity):
         self._target_temperature = 20
         self._current_temperature = 20
         self._preset_mode = 0
-        self.auto = 1
+        self.auto = 0
         self.heating = 0
         self._hvac_mode = "auto"
         self._attr_unique_id = "Ester_X40_temperature"
@@ -130,6 +130,8 @@ class EcomaxThermostat(ClimateEntity):
         trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
         thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
         await comm.close()
+        
+        _LOGGER.error("Temperatures %s", thermostat_data)
         
         if 5 < thermostat_data.get("ACTUELLE", 0) < 35:
             self._target_temperature = thermostat_data["ACTUELLE"]
