@@ -90,9 +90,14 @@ class EcomaxThermostat(ClimateEntity):
         return self._preset_mode
 
     @property
+    def target_temperature_step(self) -> float:
+        """Retourne le pas de modification de la température cible."""
+        return 0.1  # définit un pas de 0.5 degré
+
+    @property
     def supported_features(self):
         """Retourne les fonctionnalités supportées par le thermostat."""
-        return ClimateEntityFeature.TARGET_TEMPERATURE
+        return (ClimateEntityFeature.PRESET_MODE | ClimateEntityFeature.TARGET_TEMPERATURE)
 
     async def set_preset_mode(self, preset_mode):
         if preset_mode not in self.preset_modes:
@@ -111,6 +116,7 @@ class EcomaxThermostat(ClimateEntity):
 
         await self.async_update_ha_state()
         await self.async_update()
+        
 
     async def set_temperature(self, **kwargs):
         temperature = kwargs.get(ATTR_TEMPERATURE)
