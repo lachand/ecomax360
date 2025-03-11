@@ -21,12 +21,16 @@ class EcoMAXAPI:
         if self.socket is None:
             _LOGGER.info("Connexion à l'ecoMAX360 sur %s:%d", HOST, PORT)
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.settimeout(5)
+            self.socket.setblocking(False)
             try:
                 self.socket.connect((HOST, PORT))
             except socket.error as err:
                 _LOGGER.error("Erreur de connexion à l'ecoMAX360 : %s", err)
                 self.socket = None
+
+    def receive(self):
+        response = self.socket.recv(1024)
+        return response.hex()
 
     def close(self):
         """Ferme la connexion TCP."""
@@ -37,37 +41,44 @@ class EcoMAXAPI:
 
     def send_trame(self, trame, ack_f):
         """Envoie une trame et retourne la réponse brute."""
+        ack_received = False
+        max_tries = 5
+        tries = 0
+
         if self.socket is None:
             _LOGGER.info("Reconnexion à l'ecoMAX360")
             self.connect()
-        try:
-            trame_bytes = trame.build()
-            self.socket.sendall(trame_bytes)
-            response = self.socket.recv(1024).hex()
-            _LOGGER.debug("Trame envoyée: %s, Réponse reçue: %s", trame_bytes.hex(), response)
-            return response
-        except socket.error as err:
-            _LOGGER.error("Erreur d'envoi de la trame: %s", err)
-            return []
+
+        while not ack_received and tries < max_tries:
+            self.scoket.sendall(trame)
+            response = self.receive()
+            
+            if response and len(response) >= 14 and response[12:14] == ack_f:
+                ack_received = True
+            
+            tries += 1
+        _LOGGER.debug("Trame envoyée: %s, Réponse reçue: %s", trame_bytes.hex(), response)
 
     def request(self, trame, datastruct, dataToSearch, ack_f):
         """Construit et envoie une trame, puis traite la réponse."""
         self.connect()
         ack_received = False
-        max_tries = 3
+        max_tries = 5
         tries = 0
 
         while not ack_received and tries < max_tries:
-            frames = self.send_trame(trame, ack_f)
+            self.socket.sendall(trame)
+            asyncio.sleep(1)  # Éviter de spammer
+            
+            frames = self.receive()
             responses = re.findall(r'68.*?16', frames)
+            
             for response in responses:
-                if len(response) >= 14 and response[14:16] == ack_f and dataToSearch in response:
-                      ack_received = True
-                      return self.extract_data(response, datastruct)
+                if len(response) >= 14 and response[14:16] == ack_f:
+                    if dataToSearch in response:
+                        return extract_data(response, datastruct)
             tries += 1
             _LOGGER.warning("Réessai de la trame (%d/%d)", tries, max_tries)
-
-        return None
 
     def extract_data(self, response, datastruct):
         """Extrait les données depuis la réponse de la chaudière."""
