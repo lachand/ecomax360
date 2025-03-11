@@ -48,7 +48,7 @@ class EcoMAXAPI:
             return response
         except socket.error as err:
             _LOGGER.error("Erreur d'envoi de la trame: %s", err)
-            return None
+            return []
 
     def request(self, trame, datastruct, dataToSearch, ack_f):
         """Construit et envoie une trame, puis traite la réponse."""
