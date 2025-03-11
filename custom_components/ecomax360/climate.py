@@ -30,6 +30,17 @@ EM_TO_HA_MODES = {
     7: "ANTIFREEZE"
 }
 
+PRESET_ICONS = {
+    "SCHEDULE": "mdi:calendar",
+    PRESET_ECO: "mdi:leaf",
+    PRESET_COMFORT: "mdi:sofa",
+    PRESET_AWAY: "mdi:airplane",
+    "AIRING": "mdi:weather-windy",
+    "PARTY": "mdi:glass-cocktail",
+    "HOLIDAYS": "mdi:palm-tree",
+    "ANTIFREEZE": "mdi:snowflake"
+}
+
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Initialise la plateforme thermostat."""
     add_entities([EcomaxThermostat()])
@@ -83,16 +94,21 @@ class EcomaxThermostat(ClimateEntity):
 
     @property
     def preset_modes(self):
-        return ["SCHEDULE", PRESET_ECO, PRESET_COMFORT, PRESET_AWAY, "AIRING", "PARTY", "HOLIDAYS", "ANTIFREEZE"]
+        return list(PRESET_ICONS.keys())
 
     @property
     def preset_mode(self):
         return self._preset_mode
 
     @property
+    def extra_state_attributes(self):
+        """Ajoute un attribut pour stocker l'icône associée au preset_mode."""
+        return {"preset_icon": PRESET_ICONS.get(self._preset_mode, "mdi:thermometer")}
+
+    @property
     def target_temperature_step(self) -> float:
         """Retourne le pas de modification de la température cible."""
-        return 0.1  # définit un pas de 0.5 degré
+        return 0.1  # définit un pas de 0.1 degré
 
     @property
     def supported_features(self):
@@ -117,52 +133,22 @@ class EcomaxThermostat(ClimateEntity):
         await self.async_update_ha_state()
         await self.async_update()
         
-
-    async def set_temperature(self, **kwargs):
-        temperature = kwargs.get(ATTR_TEMPERATURE)
-        if temperature is None:
-            return
-        self._target_temperature = temperature
-
-        code = "012001" if self._preset_mode in [0, 1] and self.auto == 1 else "012101"
-        trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
-
-        comm = Communication()
-        await comm.connect()
-        await comm.send(trame, "a9")
-        await comm.close()
-
-        await self.async_update_ha_state()
-        await self.async_update()
-
     async def async_update(self):
         """Met à jour les informations du thermostat."""
         comm = Communication()
         await comm.connect()
         trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
-        thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {"MODE": 0,"TEMPERATURE": self._current_temperature, "ACTUELLE": self._target_temperature,"AUT0": self.auto, "HEATING": self.heating}
+        thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {"MODE": 0, "TEMPERATURE": self._current_temperature, "ACTUELLE": self._target_temperature, "AUTO": self.auto, "HEATING": self.heating}
         await comm.close()
 
         _LOGGER.info("Données du thermostat reçues: %s", thermostat_data)
 
-        # Mise à jour des températures uniquement si valides
-        new_target_temp = thermostat_data.get("ACTUELLE", self._target_temperature)
-        if 10 < new_target_temp < 30:
-            self._target_temperature = new_target_temp
-        else:
-            _LOGGER.warning("Température cible hors plage : %s", new_target_temp)
+        self._current_temperature = thermostat_data.get("TEMPERATURE", self._current_temperature)
+        self._target_temperature = thermostat_data.get("ACTUELLE", self._target_temperature)
 
-        new_current_temp = thermostat_data.get("TEMPERATURE", self._current_temperature)
-        if 10 < new_current_temp < 30:
-            self._current_temperature = new_current_temp
-        else:
-            _LOGGER.warning("Température actuelle hors plage : %s", new_current_temp)
-
-        # Mise à jour du mode de préréglage
         mode = thermostat_data.get("MODE", 0)
         self._preset_mode = EM_TO_HA_MODES.get(mode, "SCHEDULE")
 
-        # Mise à jour des états auxiliaires
         self.auto = thermostat_data.get("AUTO", 1)
         self.heating = thermostat_data.get("HEATING", 0)
 
