@@ -47,7 +47,7 @@ class EcomaxThermostat(ClimateEntity):
         self._name = "Thermostat personnalisé"
         self._target_temperature = 20
         self._current_temperature = 20
-        self._preset_mode = 0
+        self._preset_mode = "SCHEDULE"
         self.auto = 0
         self.heating = 0
         self._hvac_mode = "auto"
@@ -130,11 +130,11 @@ class EcomaxThermostat(ClimateEntity):
         await self.async_update()
 
     async def async_update(self):
-    """Met à jour les informations du thermostat."""
+        """Met à jour les informations du thermostat."""
         comm = Communication()
         await comm.connect()
         trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
-        thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {"MODE": self._preset_mode,"TEMPERATURE": self._current_temperature, "ACTUELLE": self._target_temperature,"AUT0": self.auto, "HEATING": self.heating}
+        thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {"MODE": self.mode,"TEMPERATURE": self._current_temperature, "ACTUELLE": self._target_temperature,"AUT0": self.auto, "HEATING": self.heating}
         await comm.close()
 
         _LOGGER.info("Données du thermostat reçues: %s", thermostat_data)
