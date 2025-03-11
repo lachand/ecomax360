@@ -10,7 +10,7 @@ from homeassistant.components.climate.const import (
     ClimateEntityFeature,
     HVACMode
 )
-from .api import EcoMAXAPI
+from .communication import Communication
 from .parameters import THERMOSTAT, ECOMAX
 from .trame import Trame
 
@@ -29,29 +29,23 @@ EM_TO_HA_MODES = {
     7: "ANTIFREEZE"
 }
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
-    api = EcoMAXAPI()
-    async_add_entities([EcomaxThermostat(api)])
-    _LOGGER.error('Configuration climate.py')
+def setup_platform(hass, config, add_entities, discovery_info=None):
+    """Initialise la plateforme thermostat."""
+    add_entities([CustomModeThermostat()])
 
-class EcomaxThermostat(ClimateEntity):
+class CustomModeThermostat(ClimateEntity):
     """Représentation d'un thermostat avec gestion de modes personnalisés."""
 
-    def __init__(self, api):
+    def __init__(self):
         """Initialise le thermostat avec des valeurs par défaut."""
         self._name = "Thermostat personnalisé"
         self._target_temperature = 20
         self._current_temperature = 20
-        self._preset_mode = "SCHEDULE"
+        self._preset_mode = 0
         self.auto = 1
         self.heating = 0
-        self._hvac_mode = HVACMode.AUTO
+        self._hvac_mode = "auto"
         self._attr_unique_id = "Ester_X40_temperature"
-        self._attr_supported_features = (
-            ClimateEntityFeature.PRESET_MODE | ClimateEntityFeature.TARGET_TEMPERATURE
-        )
-        self._attr_target_temperature_step = 0.1
-        self.api = api
 
     @property
     def hvac_action(self):
@@ -72,10 +66,6 @@ class EcomaxThermostat(ClimateEntity):
     @property
     def target_temperature(self):
         return self._target_temperature
-    
-    @property
-    def target_temperature_step(self):
-        return self._attr_target_temperature_step
 
     @property
     def hvac_mode(self):
@@ -87,53 +77,53 @@ class EcomaxThermostat(ClimateEntity):
 
     @property
     def preset_modes(self):
-        return list(EM_TO_HA_MODES.values())
+        return ["SCHEDULE", PRESET_ECO, PRESET_COMFORT, PRESET_AWAY, "AIRING", "PARTY", "HOLIDAYS", "ANTIFREEZE"]
 
     @property
     def preset_mode(self):
         return self._preset_mode
-    
-    @property
-    def preset_mode_icon(self):
-        """Retourne l'icône associée au preset actuel."""
-        return PRESET_ICONS.get(self._preset_mode, "mdi:thermometer")
 
-    async def async_set_preset_mode(self, preset_mode):
+    async def set_preset_mode(self, preset_mode):
         if preset_mode not in self.preset_modes:
             _LOGGER.error("Preset %s non supporté", preset_mode)
             return
         self._preset_mode = preset_mode
 
         mode_code = "011e01"
-        code = next((key for key, value in EM_TO_HA_MODES.items() if value == preset_mode), "00")
-        #trame = Trame("6400", "0100", "29", "a9", mode_code, code).build()
-        trame = Trame("6400", "0100", "29", "a9", mode_code, code)
-        self.api.send_trame(trame, "a9")
+        code = {"SCHEDULE": "03", PRESET_COMFORT: "01", PRESET_ECO: "02", "ANTIFREEZE": "07"}.get(self._preset_mode, "00")
+        trame = Trame("6400", "0100", "29", "a9", mode_code, code).build()
 
-        self.async_update()
-        self.async_write_ha_state()
+        comm = Communication()
+        await comm.connect()
+        await comm.send(trame, "a9")
+        await comm.close()
 
-    async def async_set_temperature(self, **kwargs):
+        await self.async_update_ha_state()
+        await self.async_update()
+
+    async def set_temperature(self, **kwargs):
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is None:
             return
         self._target_temperature = temperature
 
-        code = "012001" if self._preset_mode in ["SCHEDULE", PRESET_ECO] and self.auto == 1 else "012101"
-        #trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
-        trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex())
+        code = "012001" if self._preset_mode in [0, 1] and self.auto == 1 else "012101"
+        trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
 
-        self.api.send_trame(trame, "a9")
+        comm = Communication()
+        await comm.connect()
+        await comm.send(trame, "a9")
+        await comm.close()
 
+        await self.async_update_ha_state()
         await self.async_update()
-        self.async_write_ha_state()
 
     async def async_update(self):
-        #trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
-        trame = Trame("64 00", "20 00", "40", "c0", "647800", "")
-        thermostat_data = self.api.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
-
-        _LOGGER.warning(thermostat_data)
+        comm = Communication()
+        await comm.connect()
+        trame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
+        thermostat_data = await comm.request(trame, THERMOSTAT, "265535445525f78343", "c0") or {}
+        await comm.close()
         
         if 5 < thermostat_data.get("ACTUELLE", 0) < 35:
             self._target_temperature = thermostat_data["ACTUELLE"]
@@ -143,4 +133,4 @@ class EcomaxThermostat(ClimateEntity):
         self._preset_mode = EM_TO_HA_MODES.get(thermostat_data.get("MODE", 0), "SCHEDULE")
         self.auto = thermostat_data.get("AUTO", 1)
         self.heating = thermostat_data.get("HEATING", 0)
-        self.async_write_ha_state()
+        await self.async_update_ha_state()
