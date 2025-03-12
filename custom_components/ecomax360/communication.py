@@ -56,11 +56,10 @@ class Communication:
             _LOGGER.info("essai %s", tries)
             await self.loop.sock_sendall(self.socket, trame)
             response = await self.receive()
-            _LOGGER.info("reponse %s", response)
             
-            if response and len(response) >= 14 and response[12:14] == ack_f:
-                
+            if response and len(response) >= 14 and response[14:16] == ack_f:
                 ack_received = True
+                _LOGGER.info("reponse %s", response)
             
             tries += 1
 
