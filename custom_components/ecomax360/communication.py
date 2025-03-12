@@ -46,16 +46,19 @@ class Communication:
             tries += 1
 
     async def send(self, trame, ack_f):
+        _LOGGER.info("temperature envoyee")
         _LOGGER.info(trame)
         ack_received = False
         max_tries = 5
         tries = 0
 
         while not ack_received and tries < max_tries:
+            _LOGGER.info("essai %s", tries)
             await self.loop.sock_sendall(self.socket, trame)
             response = await self.receive()
             
-            if response and len(response) >= 14 and response[12:14] == ack_f:
+            if response and len(response) >= 14 and response[12:14] == ack_f
+                
                 ack_received = True
             
             tries += 1
