@@ -132,6 +132,23 @@ class EcomaxThermostat(ClimateEntity):
 
         await self.async_update_ha_state()
         await self.async_update()
+
+    async def set_temperature(self, **kwargs):
+        temperature = kwargs.get(ATTR_TEMPERATURE)
+        if temperature is None:
+            return
+        self._target_temperature = temperature
+
+        code = "012001" if self._preset_mode in [0, 1] and self.auto == 1 else "012101"
+        trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
+
+        comm = Communication()
+        await comm.connect()
+        await comm.send(trame, "a9")
+        await comm.close()
+
+        await self.async_update_ha_state()
+        await self.async_update()
         
     async def async_update(self):
         """Met à jour les informations du thermostat."""
