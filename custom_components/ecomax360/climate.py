@@ -109,7 +109,7 @@ class EcomaxThermostat(ClimateEntity):
 
     @property
     def preset_mode(self):
-        return self._preset_mode
+        return ["Calendrier",PRESET_ECO,PRESET_COMFORT,PRESET_AWAY,"Aération","Fête","Vacances","Hors-gel"]
 
     @property
     def extra_state_attributes(self):
