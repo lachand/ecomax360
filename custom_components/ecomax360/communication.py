@@ -56,6 +56,8 @@ class Communication:
             response = await self.receive()
             
             if response and len(response) >= 14 and response[12:14] == ack_f:
+                _LOGGER.info("Taille de trame :")
+                _LOGGER.info(len(response))
                 ack_received = True
             
             tries += 1
