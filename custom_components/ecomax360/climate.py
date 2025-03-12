@@ -122,8 +122,9 @@ class EcomaxThermostat(ClimateEntity):
         self._preset_mode = preset_mode
 
         mode_code = "011e01"
+        _LOGGER.error("Preset %s non supporté", preset_mode)
         code = next((key for key, value in EM_TO_HA_MODES.items() if value == preset_mode), "00")
-        trame = Trame("6400", "0100", "29", "a9", mode_code, code).build()
+        trame = Trame("6400", "0100", "29", "a9", mode_code, code.build()
 
         comm = Communication()
         await comm.connect()
