@@ -30,6 +30,17 @@ EM_TO_HA_MODES = {
     7: "Hors-gel"
 }
 
+HA_TO_EM_MODES = {
+    "Calendrier" : "00",
+    PRESET_ECO : "01",
+    PRESET_COMFORT : "02",
+    PRESET_AWAY : "03",
+    "Aération" : "04",
+    "Fête" : "05",
+    "Vacances" : "06",
+    "Hors-gel" : "07",
+}
+
 PRESET_ICONS = {
     "Calendrier": "mdi:calendar",
     PRESET_ECO: "mdi:leaf",
@@ -124,7 +135,7 @@ class EcomaxThermostat(ClimateEntity):
         mode_code = "011e01"
         _LOGGER.error("Preset %s non supporté", preset_mode)
         code = next((key for key, value in EM_TO_HA_MODES.items() if value == preset_mode), "00")
-        trame = Trame("6400", "0100", "29", "a9", mode_code, code.hex()).build()
+        trame = Trame("6400", "0100", "29", "a9", mode_code, code).build()
 
         comm = Communication()
         await comm.connect()
