@@ -42,6 +42,8 @@ class Communication:
             for response in responses:
                 if len(response) >= 14 and response[14:16] == ack_f:
                     if dataToSearch in response:
+                        _LOGGER.info("Taille de trame :")
+                        _LOGGER.info(len(response))
                         return extract_data(response, datastruct)
             tries += 1
 
@@ -56,8 +58,6 @@ class Communication:
             response = await self.receive()
             
             if response and len(response) >= 14 and response[12:14] == ack_f:
-                _LOGGER.info("Taille de trame :")
-                _LOGGER.info(len(response))
                 ack_received = True
             
             tries += 1
