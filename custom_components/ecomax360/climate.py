@@ -115,14 +115,14 @@ class EcomaxThermostat(ClimateEntity):
         """Retourne les fonctionnalités supportées par le thermostat."""
         return (ClimateEntityFeature.PRESET_MODE | ClimateEntityFeature.TARGET_TEMPERATURE)
 
-    async def set_preset_mode(self, preset_mode):
+    async def async_set_preset_mode(self, preset_mode):
         if preset_mode not in self.preset_modes:
             _LOGGER.error("Preset %s non supporté", preset_mode)
             return
         self._preset_mode = preset_mode
 
         mode_code = "011e01"
-        code = {"SCHEDULE": "03", PRESET_COMFORT: "01", PRESET_ECO: "02", "ANTIFREEZE": "07"}.get(self._preset_mode, "00")
+        code = next((key for key, value in EM_TO_HA_MODES.items() if value == preset_mode), "00")
         trame = Trame("6400", "0100", "29", "a9", mode_code, code).build()
 
         comm = Communication()
@@ -130,17 +130,16 @@ class EcomaxThermostat(ClimateEntity):
         await comm.send(trame, "a9")
         await comm.close()
 
-        await self.async_update_ha_state()
         await self.async_update()
+        self.async_write_ha_state()
 
-    async def set_temperature(self, **kwargs):
+    async def async_set_temperature(self, **kwargs):
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is None:
             return
         self._target_temperature = temperature
-        _LOGGER.info("Température cible: %s", temperature)
 
-        code = "012001" if self._preset_mode in [0, 1] and self.auto == 1 else "012101"
+        code = "012001" if self._preset_mode in ["SCHEDULE", PRESET_ECO] and self.auto == 1 else "012101"
         trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
 
         comm = Communication()
@@ -148,8 +147,8 @@ class EcomaxThermostat(ClimateEntity):
         await comm.send(trame, "a9")
         await comm.close()
 
-        await self.async_update_ha_state()
         await self.async_update()
+        self.async_write_ha_state()
         
     async def async_update(self):
         """Met à jour les informations du thermostat."""
