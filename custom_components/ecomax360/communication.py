@@ -49,13 +49,14 @@ class Communication:
         _LOGGER.info("temperature envoyee")
         _LOGGER.info(trame)
         ack_received = False
-        max_tries = 5
+        max_tries = 10
         tries = 0
 
         while not ack_received and tries < max_tries:
             _LOGGER.info("essai %s", tries)
             await self.loop.sock_sendall(self.socket, trame)
             response = await self.receive()
+            _LOGGER.info("reponse %s", response)
             
             if response and len(response) >= 14 and response[12:14] == ack_f:
                 
