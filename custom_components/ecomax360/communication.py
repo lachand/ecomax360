@@ -40,10 +40,8 @@ class Communication:
             responses = re.findall(r'68.*?16', frames)
             
             for response in responses:
-                if len(response) >= 14 and response[14:16] == ack_f:
+                if len(response) == 116 and len(response) >= 14 and response[14:16] == ack_f:
                     if dataToSearch in response:
-                        _LOGGER.info("Taille de trame :")
-                        _LOGGER.info(len(response))
                         return extract_data(response, datastruct)
             tries += 1
 
