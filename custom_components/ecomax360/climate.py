@@ -138,6 +138,8 @@ class EcomaxThermostat(ClimateEntity):
         if temperature is None:
             return
         self._target_temperature = temperature
+        _LOGGER.info("preset: %s", self._preset_mode)
+        _LOGGER.info("auto : %s", self.auto)
         code = "012001" if self._preset_mode in ["Calendrier", PRESET_ECO] and self.auto == 1 else "012101"
         trame = Trame("6400", "0100", "29", "a9", code, struct.pack('<f', temperature).hex()).build()
 
