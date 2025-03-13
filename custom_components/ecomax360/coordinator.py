@@ -22,7 +22,7 @@ class EcomaxCoordinator(DataUpdateCoordinator):
         """Effectue une seule requête et met à jour toutes les valeurs."""
         try:
             self._comm.connect()
-            data = self._comm.listenFrame("GET_DATAS") or {}
+            data = axait self._comm.listenFrame("GET_DATAS") or {}
             self._comm.close()
             return data
         except Exception as err:
