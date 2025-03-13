@@ -8,6 +8,7 @@ from .const import DOMAIN
 from .coordinator import EcomaxCoordinator
 from .api import EcoMAXAPI
 from .communication import Communication
+from .parameters import ECOMAX
 
 _LOGGER = logging.getLogger(__name__)
 
