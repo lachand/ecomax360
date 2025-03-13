@@ -9,6 +9,7 @@ from .coordinator import EcomaxCoordinator
 from .api import EcoMAXAPI
 from .communication import Communication
 from .parameters import ECOMAX
+from .sensor import EcomaxSensor
 
 _LOGGER = logging.getLogger(__name__)
 
