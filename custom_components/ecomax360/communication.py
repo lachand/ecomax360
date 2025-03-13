@@ -64,6 +64,7 @@ class Communication:
             tries += 1
 
     async def listenFrame(self, param):
+        _LOGGER.info("parametre %s", param)
         if param not in PARAMETER:
             return None
 
@@ -72,6 +73,7 @@ class Communication:
         responses = re.findall(r'68.*?16', frames)
 
         for response in responses:
+            _LOGGER.info("trame %s", response)
             if PARAMETER[param]["dataToSearch"] in response:
                 return extract_data(response, PARAMETER[param]["dataStruct"])
         return None
