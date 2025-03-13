@@ -70,6 +70,7 @@ class EcomaxSensor(SensorEntity):
         _LOGGER.info(f"Capteur {self._name} mis à jour : {self._state}")
 
 async def async_setup_entry(hass, entry, async_add_entities):
+    _LOGGER.info(f"Configuration capteur")
     """Configurer les capteurs pour une entrée donnée."""
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
@@ -79,5 +80,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         EcomaxSensor(coordinator, name, key)
         for key, name in {**{key: f"EcoMax {key}" for key in coordinator.data.keys()}}.items()
     ]
+    _LOGGER.info(sensors)
 
     async_add_entities(sensors, True)
