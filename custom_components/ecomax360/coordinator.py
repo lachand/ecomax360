@@ -1,34 +1,25 @@
-import logging
 from datetime import timedelta
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.core import HomeAssistant
-from .api import EcoMAXAPI
-from .parameters import PARAMETER
-from .trame import Trame
-
-_LOGGER = logging.getLogger(__name__)
 
 class EcomaxCoordinator(DataUpdateCoordinator):
-    def __init__(self, hass: HomeAssistant, api: EcoMAXAPI):
+    """Coordonne la mise à jour des capteurs en évitant les requêtes multiples."""
+
+    def __init__(self, hass, comm):
+        """Initialise le coordinateur avec une communication unique."""
+        self._comm = comm
         super().__init__(
-            hass, _LOGGER, name="ecomax360",
-            update_method=self.async_update_data,
-            update_interval=timedelta(seconds=300),
+            hass,
+            _LOGGER,
+            name="EcomaxCoordinator",
+            update_interval=timedelta(seconds=300),  # Mise à jour toutes les 30 secondes
         )
-        self.api = api
 
-    async def async_update_data(self):
+    async def _async_update_data(self):
+        """Effectue une seule requête et met à jour toutes les valeurs."""
         try:
-            _LOGGER.debug("Mise à jour des données ecoMAX360...")
-            trame = Trame("0100", "FFFF", "c0", "40", "", "")
-            #trame = "64 00 20 00 40 c0 647800"
-            data = self.api.request(trame, PARAMETER["GET_DATAS"]["dataStruct"], PARAMETER["GET_DATAS"]["dataToSearch"], "c0")
-
-            if not data:
-                raise UpdateFailed("Aucune donnée reçue de ecoMAX360")
-
-            _LOGGER.info("Données mises à jour : %s", data)
+            self._comm.connect()
+            data = self._comm.listenFrame("GET_DATAS") or {}
+            self._comm.close()
             return data
         except Exception as err:
-            _LOGGER.error("Erreur lors de la mise à jour : %s", err)
-            raise UpdateFailed(f"Échec de mise à jour des données ecoMAX360: {err}")
+            raise UpdateFailed(f"Erreur lors de la récupération des données : {err}")
