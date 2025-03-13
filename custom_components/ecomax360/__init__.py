@@ -69,14 +69,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     logging.info(f"Nombre de capteurs détectés : {len(sensors)}")
 
-    async_add_entities(sensors, True)
-
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {"coordinator": coordinator}
     #hass.data[DOMAIN][entry.entry_id] = {"api": api}
 
     #hass.config_entries.async_setup_platforms(entry, ["sensor", "climate"])
-    await hass.config_entries.async_forward_entry_setup(entry, ["sensor", "climate"])
+    #await hass.config_entries.async_forward_entry_setup(entry, ["sensor", "climate"])
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     #await hass.config_entries.async_forward_entry_setup(entry, "climate")
 
     return True
