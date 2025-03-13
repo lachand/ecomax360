@@ -3,6 +3,18 @@ from homeassistant.components.sensor import SensorEntity
 class EcomaxSensor(SensorEntity):
     """Capteur individuel d'EcoMax."""
 
+    ICONS = {
+        "TEMPERATURE": "mdi:thermometer",
+        "JOUR": "mdi:weather-sunny",
+        "NUIT": "mdi:weather-night",
+        "ACTUELLE": "mdi:thermometer-check",
+        "SOURCE_PRINCIPALE": "mdi:fire",
+        "DEPART_RADIATEUR": "mdi:radiator",
+        "ECS": "mdi:water-pump",
+        "BALLON_TAMPON": "mdi:water",
+        "TEMPERATURE_EXTERIEUR": "mdi:weather-partly-cloudy"
+    }
+
     def __init__(self, coordinator, name, param):
         """Initialise le capteur avec le coordinateur."""
         self.coordinator = coordinator
@@ -10,9 +22,11 @@ class EcomaxSensor(SensorEntity):
         self._param = param
         self._state = None
 
-        self._attr_native_unit_of_measurement = self.UNIT_MAPPING.get(param)
+        self._attr_native_unit_of_measurement = "°C"
         self._attr_device_class = "temperature" if self._attr_native_unit_of_measurement == "°C" else None
         self._attr_state_class = "measurement" if self._attr_native_unit_of_measurement else None
+
+
 
     @property
     def name(self):
