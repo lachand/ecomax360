@@ -68,12 +68,19 @@ class Communication:
         if param not in PARAMETER:
             return None
 
-        await self.connect()
-        frames = await self.receive()
-        responses = re.findall(r'68.*?16', frames)
+        found = False
+        tries = 0
+        max_tries = 100
 
-        for response in responses:
-            _LOGGER.info("trame %s", response)
-            if PARAMETER[param]["dataToSearch"] in response:
-                return extract_data(response, PARAMETER[param]["dataStruct"])
+        while(!found and tries < max_tries):
+
+            await self.connect()
+            frames = await self.receive()
+            responses = re.findall(r'68.*?16', frames)
+
+            for response in responses:
+                _LOGGER.info("trame %s", response)
+                if PARAMETER[param]["dataToSearch"] in response:
+                    return extract_data(response, PARAMETER[param]["dataStruct"])
+            tries = tries + 1
         return None
