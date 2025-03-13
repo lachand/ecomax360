@@ -1,7 +1,21 @@
+import logging
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.const import STATE_UNKNOWN
+from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 class EcomaxSensor(SensorEntity):
     """Capteur individuel d'EcoMax."""
+
+    UNIT_MAPPING = {
+        "TEMPERATURE": "°C",
+        "ACTUELLE": "°C",
+        "DEPART_RADIATEUR": "°C",
+        "ECS": "°C",
+        "BALLON_TAMPON": "°C",
+        "TEMPERATURE_EXTERIEUR": "°C"
+    }
 
     ICONS = {
         "TEMPERATURE": "mdi:thermometer",
@@ -22,11 +36,9 @@ class EcomaxSensor(SensorEntity):
         self._param = param
         self._state = None
 
-        self._attr_native_unit_of_measurement = "°C"
+        self._attr_native_unit_of_measurement = self.UNIT_MAPPING.get(param)
         self._attr_device_class = "temperature" if self._attr_native_unit_of_measurement == "°C" else None
         self._attr_state_class = "measurement" if self._attr_native_unit_of_measurement else None
-
-
 
     @property
     def name(self):
@@ -55,4 +67,17 @@ class EcomaxSensor(SensorEntity):
         else:
             self._state = STATE_UNKNOWN
 
-        logging.info(f"Capteur {self._name} mis à jour : {self._state}")
+        _LOGGER.info(f"Capteur {self._name} mis à jour : {self._state}")
+
+async def async_setup_entry(hass, entry, async_add_entities):
+    """Configurer les capteurs pour une entrée donnée."""
+    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+
+    await coordinator.async_config_entry_first_refresh()
+
+    sensors = [
+        EcomaxSensor(coordinator, name, key)
+        for key, name in {**{key: f"EcoMax {key}" for key in coordinator.data.keys()}}.items()
+    ]
+
+    async_add_entities(sensors, True)
