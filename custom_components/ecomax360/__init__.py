@@ -1,26 +1,17 @@
 import logging
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers import config_validation as cv
-import voluptuous as vol
+
 from .const import DOMAIN
 from .coordinator import EcomaxCoordinator
-from .api import EcoMAXAPI
 from .communication import Communication
-from .parameters import ECOMAX
-from .sensor import EcomaxSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-#def setup(hass, config):
-#    """Configuration de l'intégration."""
-#    _LOGGER.info("Démarrage de EcoMax360")
-#    #load_platform(hass, "sensor", DOMAIN, {}, config)
-#    load_platform(hass, "climate", DOMAIN, {}, config)
-#    #load_platform(hass, "switch", DOMAIN, {}, config)
-#    return True
-
+PLATFORMS = ["sensor", "climate"] 
 
 # Schéma de configuration YAML (si besoin)
 CONFIG_SCHEMA = vol.Schema(
@@ -56,27 +47,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _LOGGER.info(f"Connexion à EcoMAX360 - Hôte : {host}, Port : {port}")
 
-    api = EcoMAXAPI()
     comm = Communication()
     coordinator = EcomaxCoordinator(hass, comm)
 
     await coordinator.async_config_entry_first_refresh()
 
-    sensors = [
-        EcomaxSensor(coordinator, name, key)
-        for key, name in {**{key: f"EcoMax {key}" for key in ECOMAX.keys()}}.items()
-    ]
-
-    logging.info(f"Nombre de capteurs détectés : {len(sensors)}")
-
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {"coordinator": coordinator}
-    #hass.data[DOMAIN][entry.entry_id] = {"api": api}
 
-    #hass.config_entries.async_setup_platforms(entry, ["sensor", "climate"])
-    #await hass.config_entries.async_forward_entry_setup(entry, ["sensor", "climate"])
+    # Charger les plateformes (sensor, climate)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    #await hass.config_entries.async_forward_entry_setup(entry, "climate")
 
     return True
 
@@ -87,5 +67,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry.entry_id in hass.data[DOMAIN]:
         hass.data[DOMAIN].pop(entry.entry_id)
 
-    return await hass.config_entries.async_unload_platforms(entry, ["sensor", "climate"])
-    #return await hass.config_entries.async_unload_platforms(entry, ["climate"])
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
