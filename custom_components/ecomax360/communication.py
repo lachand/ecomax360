@@ -80,6 +80,7 @@ class Communication:
 
             for response in responses:
                 _LOGGER.info("trame %s", response)
+                _LOGGER.info("Taille %s", len(response)
                 if PARAMETER[param]["dataToSearch"] in response:
                     return extract_data(response, PARAMETER[param]["dataStruct"])
             tries = tries + 1
