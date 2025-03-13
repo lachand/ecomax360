@@ -54,17 +54,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.info(f"Connexion à EcoMAX360 - Hôte : {host}, Port : {port}")
 
     api = EcoMAXAPI()
-    #coordinator = EcomaxCoordinator(hass, api)
+    coordinator = EcomaxCoordinator(hass, api)
 
-    #await coordinator.async_config_entry_first_refresh()
+    await coordinator.async_config_entry_first_refresh()
+
+    sensors = [
+        EcomaxSensor(coordinator, name, key)
+        for key, name in {**{key: f"EcoMax {key}" for key in ECOMAX.keys()}}.items()
+    ]
+
+    logging.info(f"Nombre de capteurs détectés : {len(sensors)}")
+
+    async_add_entities(sensors, True)
 
     hass.data.setdefault(DOMAIN, {})
-    #hass.data[DOMAIN][entry.entry_id] = {"coordinator": coordinator, "api": api}
-    hass.data[DOMAIN][entry.entry_id] = {"api": api}
+    hass.data[DOMAIN][entry.entry_id] = {"coordinator": coordinator, "api": api}
+    #hass.data[DOMAIN][entry.entry_id] = {"api": api}
 
     #hass.config_entries.async_setup_platforms(entry, ["sensor", "climate"])
-    # OR await hass.config_entries.async_forward_entry_setup(entry, ["sensor", "climate"])
-    await hass.config_entries.async_forward_entry_setup(entry, "climate")
+    await hass.config_entries.async_forward_entry_setup(entry, ["sensor", "climate"])
+    #await hass.config_entries.async_forward_entry_setup(entry, "climate")
 
     return True
 
