@@ -72,7 +72,7 @@ class Communication:
         tries = 0
         max_tries = 100
 
-        while(!found and tries < max_tries):
+        while(not found and tries < max_tries):
 
             await self.connect()
             frames = await self.receive()
