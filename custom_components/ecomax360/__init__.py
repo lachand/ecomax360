@@ -70,7 +70,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async_add_entities(sensors, True)
 
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = {"coordinator": coordinator, "api": api}
+    hass.data[DOMAIN][entry.entry_id] = {"coordinator": coordinator}
     #hass.data[DOMAIN][entry.entry_id] = {"api": api}
 
     #hass.config_entries.async_setup_platforms(entry, ["sensor", "climate"])
@@ -86,5 +86,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry.entry_id in hass.data[DOMAIN]:
         hass.data[DOMAIN].pop(entry.entry_id)
 
-    #return await hass.config_entries.async_unload_platforms(entry, ["sensor", "climate"])
-    return await hass.config_entries.async_unload_platforms(entry, ["climate"])
+    return await hass.config_entries.async_unload_platforms(entry, ["sensor", "climate"])
+    #return await hass.config_entries.async_unload_platforms(entry, ["climate"])
