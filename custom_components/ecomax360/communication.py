@@ -79,9 +79,7 @@ class Communication:
             responses = re.findall(r'68.*?16', frames)
 
             for response in responses:
-                _LOGGER.info("trame %s", response)
-                _LOGGER.info("Taille %s", len(response))
-                if PARAMETER[param]["dataToSearch"] in response:
+                if len(response) == 820 and PARAMETER[param]["dataToSearch"] in response:
                     return extract_data(response, PARAMETER[param]["dataStruct"])
             tries = tries + 1
         return None
