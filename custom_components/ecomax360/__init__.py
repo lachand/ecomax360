@@ -7,6 +7,7 @@ import voluptuous as vol
 from .const import DOMAIN
 from .coordinator import EcomaxCoordinator
 from .api import EcoMAXAPI
+from .communication import Communication
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -54,7 +55,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.info(f"Connexion à EcoMAX360 - Hôte : {host}, Port : {port}")
 
     api = EcoMAXAPI()
-    coordinator = EcomaxCoordinator(hass, api)
+    comm = Communication()
+    coordinator = EcomaxCoordinator(hass, comm)
 
     await coordinator.async_config_entry_first_refresh()
 
