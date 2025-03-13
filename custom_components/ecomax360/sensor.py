@@ -1,3 +1,5 @@
+from homeassistant.helpers.entity import SensorEntity
+
 class EcomaxSensor(SensorEntity):
     """Capteur individuel d'EcoMax."""
 
