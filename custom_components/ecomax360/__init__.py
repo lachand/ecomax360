@@ -1,9 +1,8 @@
+
 import logging
-import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.typing import ConfigType
-from homeassistant.helpers import config_validation as cv
+from homeassistant.const import Platform
 
 from .const import DOMAIN
 from .coordinator import EcomaxCoordinator
@@ -11,60 +10,28 @@ from .communication import Communication
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["sensor", "climate"] 
-
-# Schéma de configuration YAML (si besoin)
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required("host"): cv.string,
-                vol.Required("port"): cv.port
-            }
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
-)
-
-async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Configurer ecomax360 à partir du fichier YAML."""
-    if DOMAIN in config:
-        hass.data.setdefault(DOMAIN, {})
-        hass.data[DOMAIN]["config"] = config[DOMAIN]
-    return True
+PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.CLIMATE]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Configurer ecomax360 depuis une entrée de configuration (UI)."""
-    _LOGGER.info("Initialisation de ecomax360 via UI")
+    host = entry.options.get("host", entry.data.get("host"))
+    port = int(entry.options.get("port", entry.data.get("port")))
+    comm = Communication(host, port)
 
-    # Récupérer la configuration depuis l'entrée
-    host = entry.data.get("host")
-    port = entry.data.get("port")
-
-    if not host or not port:
-        _LOGGER.error("La configuration de ecomax360 est incomplète. Vérifiez l'entrée de configuration.")
-        return False
-
-    _LOGGER.info(f"Connexion à EcoMAX360 - Hôte : {host}, Port : {port}")
-
-    comm = Communication()
-    coordinator = EcomaxCoordinator(hass, comm)
-
+    coordinator = EcomaxCoordinator(hass, comm, entry)
     await coordinator.async_config_entry_first_refresh()
 
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = {"coordinator": coordinator}
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
 
-    # Charger les plateformes (sensor, climate)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     return True
 
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    await hass.config_entries.async_reload(entry.entry_id)
+
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Décharger une entrée de configuration ecomax360."""
-    _LOGGER.info(f"Déchargement de ecomax360 - ID d'entrée : {entry.entry_id}")
-
-    if entry.entry_id in hass.data[DOMAIN]:
-        hass.data[DOMAIN].pop(entry.entry_id)
-
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id, None)
+    return unload_ok

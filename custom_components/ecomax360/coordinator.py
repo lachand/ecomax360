@@ -8,14 +8,15 @@ _LOGGER = logging.getLogger(__name__)  # Ajout de cette ligne pour définir `_LO
 class EcomaxCoordinator(DataUpdateCoordinator):
     """Coordonne la mise à jour des capteurs en évitant les requêtes multiples."""
 
-    def __init__(self, hass, comm):
+    def __init__(self, hass, comm, entry):
         """Initialise le coordinateur avec une communication unique."""
         self._comm = comm
+        self._scan_interval = entry.options.get('scan_interval', 60)
         super().__init__(
             hass,
             _LOGGER,  # Utilisation correcte du logger
             name="EcomaxCoordinator",
-            update_interval=timedelta(seconds=120),  # Mise à jour toutes les 30 secondes
+            update_interval=timedelta(seconds=self._scan_interval),  # Mise à jour toutes les 30 secondes
         )
 
     async def _async_update_data(self):

@@ -2,13 +2,15 @@ import socket
 import asyncio
 import logging
 import re
-from .parameters import HOST, PORT, PARAMETER
+from .parameters import PARAMETER
 from .utils import extract_data
 
 _LOGGER = logging.getLogger(__name__)
 
 class Communication:
-    def __init__(self):
+    def __init__(self, host: str, port: int):
+        self.host = host
+        self.port = port
         self.socket = None
         self.loop = asyncio.get_event_loop()
 
@@ -16,7 +18,7 @@ class Communication:
         if self.socket is None:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.setblocking(False)
-            await self.loop.sock_connect(self.socket, (HOST, PORT))
+            await self.loop.sock_connect(self.socket, (self.host, self.port))
 
     async def close(self):
         if self.socket:
