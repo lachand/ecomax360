@@ -1,5 +1,3 @@
-HOST = "192.168.1.38"
-PORT = 8899
 
 THERMOSTAT = {
     "MODE": {"index" : 29, "type" : int, "values": {
