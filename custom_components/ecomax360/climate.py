@@ -57,7 +57,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     add_entities([EcomaxThermostat()])
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    api = EcoMAXAPI()
+    host = entry.options.get("host", entry.data.get("host"))
+    port = int(entry.options.get("port", entry.data.get("port", 8899)))
+
+    api = EcoMAXAPI(host, port)
     async_add_entities([EcomaxThermostat(api)])
     _LOGGER.error('Configuration climate.py')
 
