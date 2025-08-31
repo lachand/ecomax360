@@ -3,55 +3,68 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.climate import ClimateEntity
+from homeassistant.components.climate.const import HVACMode
 from homeassistant.const import UnitOfTemperature
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 
 from .const import DOMAIN
+from .api import EcoMAXAPI
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities) -> None:
-    """Configurer les capteurs pour une entrée donnée."""
+    """Configurer l'entité Climate pour une entrée donnée."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
 
-    # Première récupération des données
-    await coordinator.async_config_entry_first_refresh()
+    # Host/port via l’UI (options) puis fallback sur data
+    host = entry.options.get("host", entry.data.get("host"))
+    port = int(entry.options.get("port", entry.data.get("port", 8899)))
 
-    # Crée un capteur par clé présente dans coordinator.data
-    data = coordinator.data or {}
-    sensors: list[EcomaxSensor] = []
-    for key in data.keys():
-        sensors.append(EcomaxSensor(coordinator, key, f"EcoMax {key}"))
+    api = EcoMAXAPI(host, port)
 
-    if not sensors:
-        _LOGGER.warning("Aucune donnée initiale, création d’un capteur 'EcoMax Data'")
-        sensors.append(EcomaxSensor(coordinator, "DEPART_RADIATEUR", "EcoMax Data"))
-
-    async_add_entities(sensors, True)
+    async_add_entities([EcomaxThermostat(coordinator, api)], True)
 
 
-class EcomaxSensor(CoordinatorEntity, SensorEntity):
-    """Capteur individuel lié au coordinator."""
+class EcomaxThermostat(ClimateEntity):
+    """Thermostat EcoMAX: lecture via coordinator, actions via API."""
 
-    def __init__(self, coordinator, key: str, name: str) -> None:
-        super().__init__(coordinator)
-        self._key = key
-        self._attr_name = name
-        self._attr_unique_id = f"{DOMAIN}_sensor_{key}"
+    _attr_name = "Thermostat personnalisé"
+    _attr_hvac_modes = [HVACMode.AUTO, HVACMode.HEAT, HVACMode.OFF]
+    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_supported_features = 0
+    _attr_unique_id = f"{DOMAIN}_thermostat"
 
-        # Unités simples pour quelques clés courantes
-        if any(k in key.upper() for k in ("TEMP", "RADIATEUR", "ECS", "BALLON", "EXTER")):
-            self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
-
-    @property
-    def native_value(self) -> Any:
-        data = self.coordinator.data or {}
-        return data.get(self._key)
+    def __init__(self, coordinator, api: EcoMAXAPI) -> None:
+        self._coordinator = coordinator
+        self._api = api
 
     @property
     def available(self) -> bool:
-        return self.coordinator.last_update_success
+        return self._coordinator.last_update_success
+
+    @property
+    def current_temperature(self) -> float | None:
+        """Choisit une température pertinente depuis les données (à adapter si besoin)."""
+        data = self._coordinator.data or {}
+        for key in ("DEPART_RADIATEUR", "ECS", "TEMPERATURE_EXTERIEUR"):
+            val = data.get(key)
+            if isinstance(val, (int, float)):
+                return float(val)
+        return None
+
+    @property
+    def hvac_mode(self) -> HVACMode:
+        # Valeur par défaut pour démarrer; mappe-la à une vraie info si disponible
+        return HVACMode.AUTO
+
+    async def async_update(self) -> None:
+        """Demande un refresh au coordinator (pas d'appel direct à Communication ici)."""
+        await self._coordinator.async_request_refresh()
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Expose les données brutes pour debug."""
+        return dict(self._coordinator.data or {})
