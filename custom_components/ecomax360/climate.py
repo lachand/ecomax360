@@ -10,6 +10,7 @@ from homeassistant.components.climate.const import (
     ClimateEntityFeature,
     HVACMode
 )
+from homeassistant.config_entries import ConfigEntry
 from .communication import Communication
 from .parameters import THERMOSTAT, ECOMAX
 from .trame import Trame
@@ -56,7 +57,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     """Initialise la plateforme thermostat."""
     add_entities([EcomaxThermostat()])
 
-async def async_setup_entry(hass, entry, async_add_entities):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     host = entry.options.get("host", entry.data.get("host"))
     port = int(entry.options.get("port", entry.data.get("port", 8899)))
 
