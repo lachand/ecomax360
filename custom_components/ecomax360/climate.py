@@ -11,6 +11,7 @@ from homeassistant.components.climate.const import (
     HVACMode
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
 from .communication import Communication
 from .parameters import THERMOSTAT, ECOMAX
 from .trame import Trame
