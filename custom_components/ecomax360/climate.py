@@ -3,14 +3,20 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate.const import HVACMode
-from homeassistant.const import UnitOfTemperature
-from homeassistant.core import HomeAssistant
-from homeassistant.config_entries import ConfigEntry
-
 from .const import DOMAIN
 from .api import EcoMAXAPI
+import struct
+import asyncio
+
+from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA, HVACAction, PRESET_AWAY, PRESET_COMFORT, PRESET_ECO
+from homeassistant.const import UnitOfTemperature, ATTR_TEMPERATURE
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
+import homeassistant.helpers.config_validation as cv
+from homeassistant.components.climate.const import (
+    ClimateEntityFeature,
+    HVACMode
+)
 
 _LOGGER = logging.getLogger(__name__)
 
