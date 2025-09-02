@@ -37,15 +37,36 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 class EcomaxSensor(CoordinatorEntity, SensorEntity):
     """Capteur individuel lié au coordinator."""
 
+    UNIT_MAPPING = {
+        "TEMPERATURE": "°C",
+        "ACTUELLE": "°C",
+        "DEPART_RADIATEUR": "°C",
+        "ECS": "°C",
+        "BALLON_TAMPON": "°C",
+        "TEMPERATURE_EXTERIEUR": "°C"
+    }
+
+    ICONS = {
+        "TEMPERATURE": "mdi:thermometer",
+        "JOUR": "mdi:weather-sunny",
+        "NUIT": "mdi:weather-night",
+        "ACTUELLE": "mdi:thermometer-check",
+        "SOURCE_PRINCIPALE": "mdi:fire",
+        "DEPART_RADIATEUR": "mdi:radiator",
+        "ECS": "mdi:water-pump",
+        "BALLON_TAMPON": "mdi:water",
+        "TEMPERATURE_EXTERIEUR": "mdi:weather-partly-cloudy"
+    }
+
     def __init__(self, coordinator, key: str, name: str) -> None:
         super().__init__(coordinator)
         self._key = key
         self._attr_name = name
         self._attr_unique_id = f"{DOMAIN}_sensor_{key}"
 
-        # Unités simples pour quelques clés courantes
-        if any(k in key.upper() for k in ("TEMP", "RADIATEUR", "ECS", "BALLON", "EXTER")):
-            self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
+        self._attr_native_unit_of_measurement = self.UNIT_MAPPING.get(param)
+        self._attr_device_class = "temperature" if self._attr_native_unit_of_measurement == "°C" else None
+        #self._attr_state_class = "measurement" if self._attr_native_unit_of_measurement else None
 
     @property
     def native_value(self) -> Any:
@@ -55,3 +76,8 @@ class EcomaxSensor(CoordinatorEntity, SensorEntity):
     @property
     def available(self) -> bool:
         return self.coordinator.last_update_success
+
+    @property
+    def icon(self):
+        """Retourne une icône spécifique en fonction du capteur."""
+        return self.ICONS.get(self._param, "mdi:help-circle")  # Icône par défaut
