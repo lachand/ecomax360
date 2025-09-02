@@ -64,7 +64,7 @@ class EcomaxSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = name
         self._attr_unique_id = f"{DOMAIN}_sensor_{key}"
 
-        self._attr_native_unit_of_measurement = self.UNIT_MAPPING.get(param)
+        self._attr_native_unit_of_measurement = self.UNIT_MAPPING.get(key)
         self._attr_device_class = "temperature" if self._attr_native_unit_of_measurement == "°C" else None
         #self._attr_state_class = "measurement" if self._attr_native_unit_of_measurement else None
 
@@ -80,4 +80,4 @@ class EcomaxSensor(CoordinatorEntity, SensorEntity):
     @property
     def icon(self):
         """Retourne une icône spécifique en fonction du capteur."""
-        return self.ICONS.get(self._param, "mdi:help-circle")  # Icône par défaut
+        return self.ICONS.get(self._key, "mdi:help-circle")  # Icône par défaut
