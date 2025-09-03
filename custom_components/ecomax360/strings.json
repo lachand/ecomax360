@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "EcoMAX360 configuration",
+        "description": "Configure your EcoMAX controller by providing the connection details.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
+      "onboarding": {
+        "title": "EcoMAX360 configuration",
+        "description": "Configure your EcoMAX controller by providing the connection details.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the controller. Please check the host and port.",
+      "already_configured": "This controller is already configured."
+    },
+    "abort": {
+      "already_configured": "This controller is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "EcoMAX360 options",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "scan_interval": "Polling interval (seconds)"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configuration EcoMAX360",
+        "description": "Configurez votre contrôleur EcoMAX en fournissant l'adresse IP et le port.",
+        "data": {
+          "host": "Hôte",
+          "port": "Port"
+        }
+      },
+      "onboarding": {
+        "title": "Configuration EcoMAX360",
+        "description": "Configurez votre contrôleur EcoMAX en fournissant l'adresse IP et le port.",
+        "data": {
+          "host": "Hôte",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Échec de la connexion au contrôleur. Vérifiez l'hôte et le port.",
+      "already_configured": "Ce contrôleur est déjà configuré."
+    },
+    "abort": {
+      "already_configured": "Ce contrôleur est déjà configuré."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options EcoMAX360",
+        "data": {
+          "host": "Hôte",
+          "port": "Port",
+          "scan_interval": "Intervalle d'interrogation (secondes)"
+        }
+      }
+    }
+  }
+}
