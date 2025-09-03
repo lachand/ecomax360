@@ -39,8 +39,8 @@ EM_TO_HA_MODES = {
 
 HA_TO_EM_MODES = {
     "Calendrier": "00",
-    PRESET_ECO: "01",
-    PRESET_COMFORT: "02",
+    PRESET_ECO: "02",
+    PRESET_COMFORT: "01",
     "Exterieur": "03",
     "Aeration": "04",
     "Fete": "05",
