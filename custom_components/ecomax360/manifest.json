@@ -1,14 +1,12 @@
 {
   "domain": "ecomax360",
-  "name": "EcoMax360 Controller",
-  "version": "0.1",
-  "requirements": [],
-  "codeowners": [
-    "@lachand"
-  ],
-  "dependencies": [],
-  "iot_class": "local_polling",
+  "name": "EcoMAX360 Controller",
+  "version": "0.8.0",
+  "documentation": "https://github.com/lachand/ecomax360",
+  "issue_tracker": "https://github.com/lachand/ecomax360/issues",
   "config_flow": true,
-  "logo": "https://raw.githubusercontent.com/lachand/ecomax360/main/icons/logo.png",
-  "icon": "https://raw.githubusercontent.com/lachand/ecomax360/main/icons/icon.png"
+  "requirements": [],
+  "codeowners": ["@lachand"],
+  "dependencies": [],
+  "iot_class": "local_polling"
 }

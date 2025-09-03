@@ -1,52 +1,67 @@
+"""Sensor platform for the EcoMAX360 integration.
+
+This module defines a generic sensor entity that represents a single
+measurement reported by the EcoMAX controller.  The sensor values are
+retrieved from the central data coordinator, which polls the device
+periodically.  Each sensor exposes a name, state, unit of measurement and
+icon appropriate to the underlying parameter.  All sensors are created
+dynamically based on the definitions in :data:`ECOMAX`.
+"""
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import UnitOfTemperature
+from homeassistant.const import STATE_UNKNOWN, UnitOfTemperature
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
+from .api.parameters import ECOMAX
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities) -> None:
-    """Configurer les capteurs pour une entrée donnée."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
-
-    # Première récupération des données
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities,
+) -> None:
+    """Set up EcoMAX360 sensors from a config entry."""
+    data = hass.data[DOMAIN][entry.entry_id]
+    coordinator = data["coordinator"]
+    # Ensure we have initial data
     await coordinator.async_config_entry_first_refresh()
-
-    # Crée un capteur par clé présente dans coordinator.data
-    data = coordinator.data or {}
     sensors: list[EcomaxSensor] = []
-    for key in data.keys():
-        sensors.append(EcomaxSensor(coordinator, key, f"EcoMax {key}"))
-
+    for key in ECOMAX.keys():
+        name = f"EcoMAX {key}".replace("_", " ")
+        sensors.append(EcomaxSensor(coordinator, key, name))
     if not sensors:
-        _LOGGER.warning("Aucune donnée initiale, création d’un capteur 'EcoMax Data'")
-        sensors.append(EcomaxSensor(coordinator, "DEPART_RADIATEUR", "EcoMax Data"))
-
+        _LOGGER.warning("No sensors created for EcoMAX360")
+        return
     async_add_entities(sensors, True)
 
 
 class EcomaxSensor(CoordinatorEntity, SensorEntity):
-    """Capteur individuel lié au coordinator."""
+    """Representation of a single EcoMAX sensor entity."""
 
-    UNIT_MAPPING = {
-        "TEMPERATURE": "°C",
-        "ACTUELLE": "°C",
-        "DEPART_RADIATEUR": "°C",
-        "ECS": "°C",
-        "BALLON_TAMPON": "°C",
-        "TEMPERATURE_EXTERIEUR": "°C"
+    # Mapping of keys to display units.  The default unit is Celsius for
+    # temperature readings; additional mappings can be added here.
+    UNIT_MAPPING: dict[str, str] = {
+        "TEMPERATURE": UnitOfTemperature.CELSIUS,
+        "ACTUELLE": UnitOfTemperature.CELSIUS,
+        "DEPART_RADIATEUR": UnitOfTemperature.CELSIUS,
+        "ECS": UnitOfTemperature.CELSIUS,
+        "BALLON_TAMPON": UnitOfTemperature.CELSIUS,
+        "TEMPERATURE_EXTERIEUR": UnitOfTemperature.CELSIUS,
     }
 
-    ICONS = {
+    # Icon mapping for specific sensors.  Icons are taken from Material
+    # Design Icons (mdi) to visually differentiate the different readings.
+    ICONS: dict[str, str] = {
         "TEMPERATURE": "mdi:thermometer",
         "JOUR": "mdi:weather-sunny",
         "NUIT": "mdi:weather-night",
@@ -55,29 +70,41 @@ class EcomaxSensor(CoordinatorEntity, SensorEntity):
         "DEPART_RADIATEUR": "mdi:radiator",
         "ECS": "mdi:water-pump",
         "BALLON_TAMPON": "mdi:water",
-        "TEMPERATURE_EXTERIEUR": "mdi:weather-partly-cloudy"
+        "TEMPERATURE_EXTERIEUR": "mdi:weather-partly-cloudy",
     }
 
     def __init__(self, coordinator, key: str, name: str) -> None:
         super().__init__(coordinator)
         self._key = key
         self._attr_name = name
-        self._attr_unique_id = f"{DOMAIN}_sensor_{key}"
-
-        self._attr_native_unit_of_measurement = self.UNIT_MAPPING.get(key)
-        self._attr_device_class = "temperature" if self._attr_native_unit_of_measurement == "°C" else None
-        #self._attr_state_class = "measurement" if self._attr_native_unit_of_measurement else None
+        # Unique ID combines the entry id and parameter key
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{key}"
+        # Unit of measurement and device class based on mapping
+        unit = self.UNIT_MAPPING.get(key.upper())
+        if unit is not None:
+            self._attr_native_unit_of_measurement = unit
+            # Temperature measurements can set a device class
+            if unit == UnitOfTemperature.CELSIUS:
+                self._attr_device_class = "temperature"
+                self._attr_state_class = "measurement"
+        # Default icon fallback
+        self._icon = self.ICONS.get(key.upper(), "mdi:help-circle")
 
     @property
     def native_value(self) -> Any:
+        """Return the state of the sensor."""
         data = self.coordinator.data or {}
-        return data.get(self._key)
+        value = data.get(self._key)
+        if value is None:
+            return STATE_UNKNOWN
+        # Attempt to convert to a float with two decimals; if conversion
+        # fails return the value directly (may already be a number)
+        try:
+            return round(float(value), 2)
+        except (ValueError, TypeError):
+            return value
 
     @property
-    def available(self) -> bool:
-        return self.coordinator.last_update_success
-
-    @property
-    def icon(self):
-        """Retourne une icône spécifique en fonction du capteur."""
-        return self.ICONS.get(self._key, "mdi:help-circle")  # Icône par défaut
+    def icon(self) -> str:
+        """Return the icon for the sensor."""
+        return self._icon
