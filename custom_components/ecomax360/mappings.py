@@ -34,9 +34,10 @@ HA_TO_EM_MODES: dict[str, str] = {
 }
 
 def em_to_ha(mode_code: int, default: str = "Calendrier") -> str:
-  """Convertit un code mode ecoMAX (int) en preset HA, avec défaut sûr."""
-  return EM_TO_HA_MODES.get(mode_code, default)
+    """Convertit un code mode ecoMAX (int) en preset HA, avec défaut sûr."""
+    return EM_TO_HA_MODES.get(mode_code, default)
 
-def ha_to_em(preset: str, default: str = "00") -> str:
-  """Convertit un preset HA en code hex ecoMAX, avec défaut sûr."""
-  return HA_TO_EM_MODES.get(preset, default)
+
+def ha_to_em(preset: str, default: str = "03") -> str:
+    """Convertit un preset HA en code hex ecoMAX, avec défaut sûr."""
+    return HA_TO_EM_MODES.get(preset, default)
