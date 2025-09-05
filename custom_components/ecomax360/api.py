@@ -151,7 +151,7 @@ class EcoMAXAPI:
     async def async_change_preset(self, preset_hex: str) -> None:
         """Change le mode (preset)."""
         frame = Trame("6400", "0100", "29", "a9", "011e01", preset_hex).build()
-        comm = Communication(self._host, self._port)
+        comm = Communication(self.host, self.port)
         await comm.connect()
         await comm.send(frame, "a9")
         await comm.close()
@@ -161,7 +161,7 @@ class EcoMAXAPI:
         frame = Trame(
             "6400", "0100", "29", "a9", code, self._float_to_hex(temperature)
         ).build()
-        comm = Communication(self._host, self._port)
+        comm = Communication(self.host, self.port)
         await comm.connect()
         await comm.send(frame, "a9")
         await comm.close()
@@ -169,7 +169,7 @@ class EcoMAXAPI:
     async def async_get_thermostat(self) -> dict | None:
         """Retourne l'état du thermostat (dictionnaire)."""
         frame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
-        comm = Communication(self._host, self._port)
+        comm = Communication(self.host, self.port)
         await comm.connect()
         data = await comm.request(frame, THERMOSTAT, "265535445525f78343", "c0")
         await comm.close()
