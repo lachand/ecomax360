@@ -187,7 +187,7 @@ class EcoMAXAPI:
         reg = "011e02"
         payload = "01" if enable else "00"
         frame = Trame("6400", "0100", "29", "a9", reg, payload).build()
-        comm = Communication(self._host, self._port)
+        comm = Communication(self.host, self.port)
         await comm.connect()
         await comm.send(frame, "a9")
         await comm.close()
@@ -198,7 +198,7 @@ class EcoMAXAPI:
         frame = Trame(
             "6400", "0100", "29", "a9", "013001", self._float_to_hex(temperature)
         ).build()
-        comm = Communication(self._host, self._port)
+        comm = Communication(self.host, self.port)
         await comm.connect()
         await comm.send(frame, "a9")
         await comm.close()
@@ -214,7 +214,7 @@ class EcoMAXAPI:
             return None
         p = PARAMETER[key]
         frame = Trame("64 00", "20 00", "40", "c0", p["payload"], "").build()
-        comm = Communication(self._host, self._port)
+        comm = Communication(self.host, self.port)
         await comm.connect()
         data = await comm.request(frame, p["dataStruct"], p["dataToSearch"], "c0")
         await comm.close()
