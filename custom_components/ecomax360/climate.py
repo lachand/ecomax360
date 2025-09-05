@@ -13,6 +13,7 @@ from homeassistant.const import UnitOfTemperature, ATTR_TEMPERATURE
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 
+from .const import DOMAIN
 from .api import EcoMAXAPI
 from .mappings import EM_TO_HA_MODES, HA_TO_EM_MODES, em_to_ha
 
