@@ -6,6 +6,7 @@ import re
 from .parameters import PARAMETER
 from .trame import Trame
 from .utils import extract_float
+from .communication import Communication
 
 _LOGGER = logging.getLogger(__name__)
 
