@@ -138,3 +138,84 @@ class EcoMAXAPI:
 
         _LOGGER.debug("Données extraites : %s", values)
         return values
+
+    # ------------------------- helpers bas niveau -------------------------
+    def _float_to_hex(self, value: float) -> str:
+        try:
+            return struct.pack("<f", value).hex()
+        except Exception:  # pragma: no cover
+            return struct.pack("<f", 0.0).hex()
+
+    # ------------------------- méthodes haut-niveau -----------------------
+    async def async_change_preset(self, preset_hex: str) -> None:
+        """Change le mode (preset)."""
+        frame = Trame("6400", "0100", "29", "a9", "011e01", preset_hex).build()
+        comm = Communication(self._host, self._port)
+        await comm.connect()
+        await comm.send(frame, "a9")
+        await comm.close()
+
+    async def async_set_setpoint(self, code: str, temperature: float) -> None:
+        """Applique une consigne de température avec le registre donné."""
+        frame = Trame(
+            "6400", "0100", "29", "a9", code, self._float_to_hex(temperature)
+        ).build()
+        comm = Communication(self._host, self._port)
+        await comm.connect()
+        await comm.send(frame, "a9")
+        await comm.close()
+
+    async def async_get_thermostat(self) -> dict | None:
+        """Retourne l'état du thermostat (dictionnaire)."""
+        frame = Trame("64 00", "20 00", "40", "c0", "647800", "").build()
+        comm = Communication(self._host, self._port)
+        await comm.connect()
+        data = await comm.request(frame, THERMOSTAT, "265535445525f78343", "c0")
+        await comm.close()
+        return data
+
+    # ------------------------- méthodes avancées --------------------------
+    async def async_set_auto(self, enable: bool) -> None:
+        """Active/désactive le mode AUTO thermostat.
+        
+        Implémentation : certains firmwares acceptent un registre dédié.
+        Si votre protocole exige une autre trame, adaptez ici sans toucher
+        aux entités.
+        """
+        # Exemple : bit AUTO dans le registre 0x011e02 (à ajuster si nécessaire)
+        reg = "011e02"
+        payload = "01" if enable else "00"
+        frame = Trame("6400", "0100", "29", "a9", reg, payload).build()
+        comm = Communication(self._host, self._port)
+        await comm.connect()
+        await comm.send(frame, "a9")
+        await comm.close()
+
+    async def async_set_dhw_setpoint(self, temperature: float) -> None:
+        """Modifie la consigne ECS (exemple). Ajustez le registre selon votre doc."""
+        # Exemple : registre hypothétique 0x013001 pour ECS
+        frame = Trame(
+            "6400", "0100", "29", "a9", "013001", self._float_to_hex(temperature)
+        ).build()
+        comm = Communication(self._host, self._port)
+        await comm.connect()
+        await comm.send(frame, "a9")
+        await comm.close()
+
+    async def async_get(self, key: str) -> dict | None:
+        """Helper générique GET basé sur `PARAMETER[key]` si défini.
+
+        Permet de réutiliser la table `PARAMETER` sans exposer la construction
+        de trames à l’extérieur. Exemple : `await api.async_get("GET_DATAS")`.
+        """
+        if key not in PARAMETER:
+            _LOGGER.error("PARAMETER[%s] introuvable", key)
+            return None
+        p = PARAMETER[key]
+        frame = Trame("64 00", "20 00", "40", "c0", p["payload"], "").build()
+        comm = Communication(self._host, self._port)
+        await comm.connect()
+        data = await comm.request(frame, p["dataStruct"], p["dataToSearch"], "c0")
+        await comm.close()
+        return data
+
