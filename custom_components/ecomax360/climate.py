@@ -1,17 +1,17 @@
 import logging
-
-from homeassistant.components.climate import (
-    ClimateEntity,
-    ClimateEntityFeature,
-    HVACMode,
-)
+import struct
+from typing import Any
+from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
-    PRESET_AWAY,
-    PRESET_COMFORT,
+    HVACMode,
+    ClimateEntityFeature,
     PRESET_ECO,
-    ATTR_TEMPERATURE,
+    PRESET_COMFORT,
+    PRESET_AWAY,
 )
-from homeassistant.const import UnitOfTemperature
+from homeassistant.const import UnitOfTemperature, ATTR_TEMPERATURE
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 
 from .api import EcoMAXAPI
 from .mappings import EM_TO_HA_MODES, HA_TO_EM_MODES, em_to_ha
