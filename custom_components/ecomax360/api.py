@@ -3,7 +3,7 @@
 import socket
 import logging
 import re
-from .parameters import PARAMETER
+from .parameters import PARAMETER, THERMOSTAT
 from .trame import Trame
 from .utils import extract_float
 from .communication import Communication
