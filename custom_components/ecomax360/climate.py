@@ -18,6 +18,32 @@ from .mappings import EM_TO_HA_MODES, HA_TO_EM_MODES, em_to_ha
 
 _LOGGER = logging.getLogger(__name__)
 
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
+) -> None:
+    """Configurer la plateforme climate à partir d'un config entry."""
+    # Récupère host/port depuis options (prioritaires) sinon data
+    host: Optional[str] = entry.options.get("host") or entry.data.get("host")
+    port: Optional[int] = entry.options.get("port") or entry.data.get("port")
+
+    if not host or not port:
+        _LOGGER.error(
+            "Configuration incomplète (host/port). Vérifiez l'entrée %s", entry.entry_id
+        )
+        return
+
+    # Essaie de récupérer le coordinator si l'init l'a stocké
+    coordinator: Any = None
+    domain_data = hass.data.get(DOMAIN, {})
+    entry_blob = domain_data.get(entry.entry_id)
+    if isinstance(entry_blob, dict) and "coordinator" in entry_blob:
+        coordinator = entry_blob["coordinator"]
+    elif entry_blob is not None:
+        coordinator = entry_blob
+
+    entity = EcomaxThermostat(coordinator, host, int(port))
+    async_add_entities([entity], True)
+
 
 class EcomaxThermostat(ClimateEntity):
     """Entité thermostat EcoMAX."""
@@ -29,7 +55,7 @@ class EcomaxThermostat(ClimateEntity):
         ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
     )
     _attr_hvac_modes = [HVACMode.HEAT]
-    _attr_preset_modes = list(HA_TO_EM_MODES.keys())
+    _attr_preset_modes = ["Calendrier", PRESET_COMFORT, PRESET_ECO, PRESET_AWAY]
 
     def __init__(self, coordinator, host: str, port: int) -> None:
         self._coordinator = coordinator
@@ -50,6 +76,7 @@ class EcomaxThermostat(ClimateEntity):
 
     @property
     def hvac_action(self):
+        # HA accepte une string libre si HVACAction n'est pas importé
         return "heating" if self.heating else "idle"
 
     @property
@@ -78,6 +105,7 @@ class EcomaxThermostat(ClimateEntity):
         if temperature is None:
             return
         self._target_temperature = temperature
+        # Logique historique : calendrier+auto ou confort => 012001, sinon 012101
         code = (
             "012001"
             if (self._preset_mode in ["Calendrier"] and self.auto == 1)
@@ -98,3 +126,4 @@ class EcomaxThermostat(ClimateEntity):
         self.auto = data.get("AUTO", 1)
         self.heating = data.get("HEATING", 0)
         await self.async_update_ha_state()
+
