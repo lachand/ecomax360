@@ -43,7 +43,8 @@ async def async_setup_entry(
         coordinator = entry_blob
 
     entity = EcomaxThermostat(coordinator, host, int(port))
-    async_add_entities([entity], True)
+    #async_add_entities([entity], True)
+    async_add_entities([entity], False)
 
 
 class EcomaxThermostat(ClimateEntity):
@@ -126,5 +127,5 @@ class EcomaxThermostat(ClimateEntity):
         self._preset_mode = em_to_ha(data.get("MODE", 0))
         self.auto = data.get("AUTO", 1)
         self.heating = data.get("HEATING", 0)
-        await self.async_update_ha_state()
+        #await self.async_update_ha_state()
 
