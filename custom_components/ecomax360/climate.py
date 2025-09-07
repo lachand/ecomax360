@@ -98,6 +98,7 @@ class EcomaxThermostat(ClimateEntity):
             _LOGGER.error("Preset %s non supporté", preset_mode)
             return
         self._preset_mode = preset_mode
+        _LOGGER.error("Change preset")
         await self._api.async_change_preset(HA_TO_EM_MODES[preset_mode])
         await self.async_update()
         self.async_write_ha_state()
@@ -114,6 +115,7 @@ class EcomaxThermostat(ClimateEntity):
             or (self._preset_mode in [PRESET_COMFORT])
             else "012101"
         )
+        _LOGGER.error("Set temperature")
         await self._api.async_set_setpoint(code, temperature)
         await self.async_update()
         self.async_write_ha_state()
