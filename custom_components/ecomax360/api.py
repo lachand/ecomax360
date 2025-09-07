@@ -153,6 +153,7 @@ class EcoMAXAPI:
         """Change le mode (preset)."""
         frame = Trame("6400", "0100", "29", "a9", "011e01", preset_hex).build()
         comm = Communication(self.host, self.port)
+        _LOGGER.error("API change preset")
         await comm.connect()
         await comm.send(frame, "a9")
         await comm.close()
@@ -163,6 +164,7 @@ class EcoMAXAPI:
             "6400", "0100", "29", "a9", code, self._float_to_hex(temperature)
         ).build()
         comm = Communication(self.host, self.port)
+        _LOGGER.error("API change temperature")
         await comm.connect()
         await comm.send(frame, "a9")
         await comm.close()
