@@ -177,32 +177,32 @@ class EcoMAXAPI:
         return data
 
     # ------------------------- méthodes avancées --------------------------
-    async def async_set_auto(self, enable: bool) -> None:
-        """Active/désactive le mode AUTO thermostat.
-        
-        Implémentation : certains firmwares acceptent un registre dédié.
-        Si votre protocole exige une autre trame, adaptez ici sans toucher
-        aux entités.
-        """
-        # Exemple : bit AUTO dans le registre 0x011e02 (à ajuster si nécessaire)
-        reg = "011e02"
-        payload = "01" if enable else "00"
-        frame = Trame("6400", "0100", "29", "a9", reg, payload).build()
-        comm = Communication(self.host, self.port)
-        await comm.connect()
-        await comm.send(frame, "a9")
-        await comm.close()
+    #async def async_set_auto(self, enable: bool) -> None:
+    #    """Active/désactive le mode AUTO thermostat.
+    #    
+    #    Implémentation : certains firmwares acceptent un registre dédié.
+    #    Si votre protocole exige une autre trame, adaptez ici sans toucher
+    #    aux entités.
+    #    """
+    #    # Exemple : bit AUTO dans le registre 0x011e02 (à ajuster si nécessaire)
+    #    reg = "011e02"
+    #    payload = "01" if enable else "00"
+    #    frame = Trame("6400", "0100", "29", "a9", reg, payload).build()
+    #    comm = Communication(self.host, self.port)
+    #    await comm.connect()
+    #    await comm.send(frame, "a9")
+    #    await comm.close()
 
-    async def async_set_dhw_setpoint(self, temperature: float) -> None:
-        """Modifie la consigne ECS (exemple). Ajustez le registre selon votre doc."""
-        # Exemple : registre hypothétique 0x013001 pour ECS
-        frame = Trame(
-            "6400", "0100", "29", "a9", "013001", self._float_to_hex(temperature)
-        ).build()
-        comm = Communication(self.host, self.port)
-        await comm.connect()
-        await comm.send(frame, "a9")
-        await comm.close()
+    #async def async_set_dhw_setpoint(self, temperature: float) -> None:
+    #    """Modifie la consigne ECS (exemple). Ajustez le registre selon votre doc."""
+    #    # Exemple : registre hypothétique 0x013001 pour ECS
+    #    frame = Trame(
+    #        "6400", "0100", "29", "a9", "013001", self._float_to_hex(temperature)
+    #    ).build()
+    #    comm = Communication(self.host, self.port)
+    #    await comm.connect()
+    #    await comm.send(frame, "a9")
+    #    await comm.close()
 
     async def async_get(self, key: str) -> dict | None:
         """Helper générique GET basé sur `PARAMETER[key]` si défini.
